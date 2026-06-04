@@ -1,9 +1,10 @@
 package ast.definitions;
 
+import ast.statements.Statement;
 import ast.types.Type;
 import visitor.Visitor;
 
-public class VarDefinition extends AbstractDefinition {
+public class VarDefinition extends AbstractDefinition implements Statement {
 
     private int offset;
 

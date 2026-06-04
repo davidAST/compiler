@@ -84,8 +84,9 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
             arg.accept(this, param);
         }
         cg.comment("Local variables");
-        for (Definition def : funcDefinition.getDefinitions()) {
-            def.accept(this, param);
+        for (Statement st : funcDefinition.getStatements()) {
+            if (st instanceof VarDefinition def)
+                def.accept(this, param);
         }
         cg.enter(funcDefinition.getLocalVarsSize());
         for (Statement statement : funcDefinition.getStatements()) {
@@ -260,8 +261,9 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
 
     private int getBytesLocalSum(FuncDefinition funcDef) {
         int fieldBytesSum = 0;
-        for (VarDefinition varDef : funcDef.getDefinitions()) {
-            fieldBytesSum += varDef.getType().numberOfBytes();
+        for (Statement st : funcDef.getStatements()) {
+            if (st instanceof VarDefinition varDef)
+                fieldBytesSum += varDef.getType().numberOfBytes();
         }
         return fieldBytesSum;
     }

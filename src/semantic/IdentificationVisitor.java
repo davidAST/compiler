@@ -43,9 +43,6 @@ public class IdentificationVisitor extends AbstractVisitor<Void, Void> {
 
         // 4. Visits attributes of the definition
         functionDefinition.getType().accept(this, parameter);
-        for (Definition def : functionDefinition.getDefinitions() ) {
-            def.accept(this, parameter);
-        }
         for (Statement st : functionDefinition.getStatements() ) {
             st.accept(this, parameter);
         }
@@ -61,10 +58,11 @@ public class IdentificationVisitor extends AbstractVisitor<Void, Void> {
         Definition def = symbolTable.find(variable.getName());
         // 1. Check that the variable is already defined
         if (def == null) {
-            new ErrorType(
+            ErrorType et = new ErrorType(
                     "The variable " + variable.getName() + " is not defined yet",
                     variable
             );
+            def = new VarDefinition(0,0, variable.getName(),et );
         }
 
         // 2. Set the definition in the variable

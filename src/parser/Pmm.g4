@@ -71,12 +71,12 @@ functionDefinition returns [Definition ast]
             List<Statement> statements = new ArrayList<>()]
     : 'def' ID '(' par=params ')' '->' tp=returnType ':'
       '{'
-          (varDef=varDefinition { $definitions.addAll($varDef.ast); })* (st=statement { $statements.addAll($st.ast); })* '}'
+          (varDef=varDefinition { $statements.addAll($varDef.ast); } | st=statement { $statements.addAll($st.ast); })* '}'
       {
         Type retType = ($tp.ast != null) ? $tp.ast : VoidType.getInstance();
         $ast = new FuncDefinition($ID.line, $ID.getCharPositionInLine() + 1,
                $ID.text, new FunctionType(retType, $par.ast),
-               $definitions, $statements);
+               $statements);
       }
     ;
 
@@ -85,12 +85,12 @@ mainDefinition returns [Definition ast]
             List<Statement> statements = new ArrayList<>()]
     : 'def' id='main' '('  ')' '->' 'None' ':'
       '{'
-          (varDef=varDefinition { $definitions.addAll($varDef.ast); })* (st=statement { $statements.addAll($st.ast); })* '}'
+          (varDef=varDefinition { $statements.addAll($varDef.ast); } | st=statement { $statements.addAll($st.ast); })* '}'
       {
         $ast = new FuncDefinition($id.line, $id.getCharPositionInLine() + 1,
                $id.text,
                new FunctionType(),
-               $definitions, $statements);
+               $statements);
       }
     ;
 

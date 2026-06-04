@@ -30,9 +30,6 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
     @Override
     public TR visit(FuncDefinition funcDefinition, TP parameter) {
         funcDefinition.getType().accept(this, parameter);
-        for (Definition def : funcDefinition.getDefinitions()) {
-            def.accept(this, parameter);
-        }
         for (Statement st :  funcDefinition.getStatements()) {
             st.accept(this, parameter);
         }

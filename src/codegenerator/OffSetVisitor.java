@@ -5,6 +5,7 @@ import ast.RecordField;
 import ast.definitions.Definition;
 import ast.definitions.FuncDefinition;
 import ast.definitions.VarDefinition;
+import ast.statements.Statement;
 import ast.types.FunctionType;
 import ast.types.StructType;
 import semantic.AbstractVisitor;
@@ -38,10 +39,12 @@ public class OffSetVisitor extends AbstractVisitor<Void, Void> {
     @Override
     public Void visit(FuncDefinition funcDef, Void param) {
         int fieldBytesSum = 0;
-        for (VarDefinition varDef : funcDef.getDefinitions()) {
-            fieldBytesSum += varDef.getType().numberOfBytes();
-            varDef.setOffset(-fieldBytesSum);
-            varDef.getType().accept(this, param);
+        for (Statement st : funcDef.getStatements()) {
+            if (st instanceof VarDefinition varDef) {
+                fieldBytesSum += varDef.getType().numberOfBytes();
+                varDef.setOffset(-fieldBytesSum);
+                varDef.getType().accept(this, param);
+            }
         }
         funcDef.getType().accept(this, param);
         funcDef.setLocalVarsSize(fieldBytesSum);

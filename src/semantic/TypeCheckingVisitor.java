@@ -15,8 +15,9 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
     // Definitions
     @Override
     public Void visit(FuncDefinition funcDef, Type parameter) {
-        for (VarDefinition varDef : funcDef.getDefinitions()) {
-            varDef.accept(this, parameter);
+        for (Statement st : funcDef.getStatements()) {
+            if (st instanceof VarDefinition varDef)
+                varDef.accept(this, parameter);
         }
         for (Statement st : funcDef.getStatements()) {
             FunctionType funcType = (FunctionType) funcDef.getType();
