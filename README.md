@@ -8,8 +8,9 @@ Each branch extends the base compiler with a new language feature. Some examples
 |---|---|
 | `master` | Base compiler |
 | `feature/increment` | `++` and `--` operators |
-| `feature/void-return` | `return;` to exit a void function |
-| ... | ... |
+| `feature/multiple-assignment` | Multiple assignment: `a, b, c = 1, 'a', 2.3` |
+| `feature/var-init` | Variable declarations anywhere in a function body (not inside `while`/`if`) |
+| `feature/void-return` | `return;` to exit a void function early |
 
 Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
 
