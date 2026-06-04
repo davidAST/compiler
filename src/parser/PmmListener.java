@@ -1,4 +1,4 @@
-// Generated from C:/Users/david/Desktop/Uniovi/3º/2º Cuatrimestre/DLP/Laboratorios/Project/src/parser/Pmm.g4 by ANTLR 4.13.2
+// Generated from C:/Users/david/Desktop/Uniovi/3º/2º Cuatrimestre/DLP/Project/src/parser/Pmm.g4 by ANTLR 4.13.2
 package parser;
 
     import ast.*;
@@ -108,6 +108,16 @@ public interface PmmListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStatement(PmmParser.StatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PmmParser#expressionsAssignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionsAssignment(PmmParser.ExpressionsAssignmentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PmmParser#expressionsAssignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionsAssignment(PmmParser.ExpressionsAssignmentContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PmmParser#block}.
 	 * @param ctx the parse tree

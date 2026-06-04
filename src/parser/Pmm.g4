@@ -168,6 +168,20 @@ statement returns [ List<Statement> ast = new ArrayList<>() ]
         // Assignment
         | left=expression '=' right=expression ';'
             {$ast.add(new Assignment($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast)); }
+        | leftExpr=expressionsAssignment '=' rightExpr=expressionsAssignment ';'
+            {
+                if ($leftExpr.ast.size() != $rightExpr.ast.size())
+                    new ErrorType("Number of expressions in the left side is not the same as in the right side", $leftExpr.ast.get(0));
+
+                for (int i = 0; i < $leftExpr.ast.size(); i++) {
+                    $ast.add(new Assignment(
+                        $leftExpr.ast.get(i).getLine(),
+                        $leftExpr.ast.get(i).getColumn(),
+                        $leftExpr.ast.get(i),
+                        $rightExpr.ast.get(i)
+                    ));
+                }
+            }
         // If - Else
         | 'if' exp=expression ':' b1=block 'else' ':'  b2=block
             {$ast.add(new IfElse($exp.ast.getLine(), $exp.ast.getColumn(), $b1.ast, $exp.ast, $b2.ast)); }
@@ -187,6 +201,10 @@ statement returns [ List<Statement> ast = new ArrayList<>() ]
                  new Variable($ID.line, $ID.getCharPositionInLine()+1,$ID.text),
                  $expressions)); }
         ;
+
+expressionsAssignment returns [List<Expression> ast = new ArrayList<>()]
+    : exp=expression {$ast.add($exp.ast);} (',' exp=expression {$ast.add($exp.ast);})*
+    ;
 
 block returns [List<Statement> ast = new ArrayList<>()]
      : st = statement {$ast.addAll($st.ast); }
