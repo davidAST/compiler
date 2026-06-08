@@ -186,7 +186,25 @@ statement returns [ List<Statement> ast = new ArrayList<>() ]
                 {$ast.add(new FunctionInvocation($ID.line, $ID.getCharPositionInLine()+1,
                  new Variable($ID.line, $ID.getCharPositionInLine()+1,$ID.text),
                  $expressions)); }
+        // Switch statement
+        | 'switch' exp = expression '{' cases '}'
+            {$ast.add(new Switch($exp.ast.getLine(),
+                                 $exp.ast.getColumn(),
+                                 $exp.ast,
+                                 $cases.ast));}
         ;
+
+cases returns [List<Case> ast = new ArrayList<>()]
+    : ('case' exp=expression ':'
+        { List<Statement> statements = new ArrayList<>(); }
+        (st=statement {statements.addAll($st.ast);})* 'break' ';'
+            {$ast.add(new Case($exp.ast.getLine(),
+                               $exp.ast.getColumn(),
+                               $exp.ast,
+                               statements));}
+
+      )*
+    ;
 
 block returns [List<Statement> ast = new ArrayList<>()]
      : st = statement {$ast.addAll($st.ast); }

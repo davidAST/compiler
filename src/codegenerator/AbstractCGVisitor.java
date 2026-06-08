@@ -1,5 +1,6 @@
 package codegenerator;
 
+import ast.Case;
 import ast.Program;
 import ast.RecordField;
 import ast.definitions.FuncDefinition;
@@ -170,6 +171,11 @@ public abstract class AbstractCGVisitor<TP, TR> implements Visitor<TP, TR> {
         return null;
     }
 
+    public TR visit(Switch switchStatement, TP parameter) {
+        throwException("Switch");
+        return null;
+    }
+
     // Types ===============================================================
 
     @Override
@@ -223,6 +229,11 @@ public abstract class AbstractCGVisitor<TP, TR> implements Visitor<TP, TR> {
     @Override
     public TR visit(RecordField recordField, TP parameter) {
         throwException("Record Field");
+        return null;
+    }
+
+    public TR visit(Case switchCase, TP parameter) {
+        throwException("Switch Case");
         return null;
     }
 }

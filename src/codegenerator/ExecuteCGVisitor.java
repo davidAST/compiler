@@ -1,5 +1,6 @@
 package codegenerator;
 
+import ast.Case;
 import ast.Program;
 import ast.definitions.Definition;
 import ast.definitions.FuncDefinition;
@@ -289,6 +290,47 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
         if (!(funcInvocation.getType() instanceof VoidType)) {
             cg.pop(funcInvocation.getType().suffix());
         }
+        return null;
+    }
+
+    @Override
+    public Void visit(Switch switchStatement, FuncDefinition param) {
+        /*
+         * execute[[Switch: statement1 -> expression1 case*]]() =
+         *  String endLabel = cg.getLabel();
+         *
+         *  for (Case case: case*) {
+         *     value[[expression1]]
+         *     String endCaseLabel = cg.getLabel();
+         *     value[[case.expression]]
+         *     <eq> expr.type.suffix()
+         *     <jz endCaseLabel>
+         *     for (Statement st : case.statements) {
+         *          execute[[statement]]
+         *     }
+         *     <jmp endLabel>
+         *     endCaseLabel <:>
+         *  }
+         *  endLabel <:>;
+         */
+        cg.line(switchStatement.getLine());
+        cg.comment("Switch");
+
+        String endLabel = cg.getLabel();
+
+        for (Case switchCase : switchStatement.getCases()) {
+            String endCaseLabel = cg.getLabel();
+            switchStatement.getExpression().accept(valueV, null);
+            switchCase.getExpression().accept(valueV, null);
+            cg.eq(switchCase.getExpression().getType().suffix());
+            cg.jz(endCaseLabel);
+            for (Statement st : switchCase.getStatements()) {
+                st.accept(this, param);
+            }
+            cg.jmp(endLabel);
+            cg.label(endCaseLabel);
+        }
+        cg.label(endLabel);
         return null;
     }
 }

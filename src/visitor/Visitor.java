@@ -41,6 +41,7 @@ public interface Visitor<TP, TR> {
     public TR visit(Read read, TP parameter);
     public TR visit(Return returnStatement, TP parameter);
     public TR visit(While whileStatement, TP parameter);
+    public TR visit(Switch switchStatement, TP parameter);
 
     // Types
     public TR visit(ArrayType arrayType, TP parameter);
@@ -52,6 +53,7 @@ public interface Visitor<TP, TR> {
     public TR visit(StructType structType, TP parameter);
     public TR visit(VoidType voidType, TP parameter);
 
-    // Record Field
+    // Record Field & Cases
     public TR visit (RecordField recordField, TP parameter);
+    public TR visit (Case caseSwitch, TP parameter);
 }

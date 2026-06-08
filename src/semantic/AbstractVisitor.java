@@ -1,5 +1,6 @@
 package semantic;
 
+import ast.Case;
 import ast.Program;
 import ast.RecordField;
 import ast.definitions.Definition;
@@ -188,6 +189,15 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
         return null;
     }
 
+    @Override
+    public TR visit(Switch switchStatement, TP parameter) {
+        switchStatement.getExpression().accept(this, parameter);
+        for (Case caseStatement : switchStatement.getCases()) {
+            caseStatement.accept(this, parameter);
+        }
+        return null;
+    }
+
     // Types ===============================================================
 
     @Override
@@ -238,9 +248,20 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
         return null;
     }
 
+    // Record fields & Cases  =======================================================
+
     @Override
     public TR visit(RecordField recordField, TP parameter) {
         recordField.getType().accept(this, parameter);
+        return null;
+    }
+
+    @Override
+    public TR visit(Case switchCase, TP parameter) {
+        switchCase.getExpression().accept(this, parameter);
+        for (Statement st : switchCase.getStatements()) {
+            st.accept(this, parameter);
+        }
         return null;
     }
 }

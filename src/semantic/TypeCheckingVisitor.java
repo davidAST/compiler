@@ -1,5 +1,6 @@
 package semantic;
 
+import ast.Case;
 import ast.definitions.FuncDefinition;
 import ast.definitions.VarDefinition;
 import ast.expressions.*;
@@ -216,6 +217,17 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
 
         for (Statement st : whileStatement.getBody()) {
             st.accept(this, parameter);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(Switch switchStatement, Type parameter) {
+        switchStatement.getExpression().accept(this, parameter);
+        Type exprType = switchStatement.getExpression().getType();
+        for (Case switchCase : switchStatement.getCases()) {
+            switchCase.accept(this, parameter);
+            switchCase.getExpression().getType().mustPromoteTo(exprType, switchCase);
         }
         return null;
     }

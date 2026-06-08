@@ -30,6 +30,8 @@ Statements (Abstract Grammar)
     (05)    While:          statement       -> expression statement*
     (06)    Return:         statement       -> expression
     (07)    FuncInvocation: statement       -> expression expression*
+    (08)    Switch:         statement1      -> expression1 case*
+
 
 Types (Abstract Grammar)
     (01)    CharType:       type            ->
@@ -39,3 +41,6 @@ Types (Abstract Grammar)
     (05)    StructType:     type1:          -> recordField+
     (06)    RecordField:    astNode:        -> ID type
     (07)    FunctionType:   type1:          -> type2 definition*
+
+Switch Case (Abstract Grammar)
+    (01)    Case:           astNode:        -> expression statement*

@@ -1,0 +1,74 @@
+
+#source	"switch-in.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line	1
+
+ main:
+	' * Parameters
+	' * Local variables
+	' * IntType a (offset -2)
+	enter	2
+
+#line	3
+	' * Read
+	push	bp
+	pushi	-2
+	addi
+	ini
+	storei
+
+#line	5
+	' * Switch
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	1
+	eqi
+	jz	label1
+
+#line	7
+	' * Write
+	pushi	10
+	outi
+	jmp	label0
+
+ label1:
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	2
+	eqi
+	jz	label2
+
+#line	10
+	' * Write
+	pushi	20
+	outi
+	jmp	label0
+
+ label2:
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	3
+	eqi
+	jz	label3
+
+#line	13
+	' * Write
+	pushi	30
+	outi
+	jmp	label0
+
+ label3:
+
+ label0:
+	ret	0, 2, 0
