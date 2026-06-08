@@ -151,13 +151,13 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
 
     @Override
     public TR visit(IfElse ifElse, TP parameter) {
+        ifElse.getCondition().accept(this, parameter);
         for (Statement ifStatement : ifElse.getIfBody()) {
             ifStatement.accept(this, parameter);
         }
         for (Statement elseStatement : ifElse.getElseBody()) {
             elseStatement.accept(this, parameter);
         }
-        ifElse.getCondition().accept(this, parameter);
         return null;
     }
 
