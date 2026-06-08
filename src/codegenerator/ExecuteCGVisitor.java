@@ -109,8 +109,8 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
          *
          */
         cg.comment(varDefinition.getType() + " " +
-                        varDefinition.getName() + " (offset " +
-                        varDefinition.getOffset() + ")");
+                varDefinition.getName() + " (offset " +
+                varDefinition.getOffset() + ")");
         return null;
     }
 
@@ -220,7 +220,7 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
         cg.line(whileStatement.getLine());
         cg.comment("While");
         cg.line(whileStatement.getLine());
-        String startWhileLabel =  cg.getLabel();
+        String startWhileLabel = cg.getLabel();
         String endWhileLabel = cg.getLabel();
         cg.label(startWhileLabel);
         whileStatement.getCondition().accept(valueV, null);
@@ -231,6 +231,7 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
         cg.label(endWhileLabel);
         return null;
     }
+
 
     @Override
     public Void visit(Return returnStatement, FuncDefinition funcDef) {
@@ -289,6 +290,34 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
         if (!(funcInvocation.getType() instanceof VoidType)) {
             cg.pop(funcInvocation.getType().suffix());
         }
+        return null;
+    }
+
+    @Override
+    public Void visit(For forLoop, FuncDefinition parameter) {
+        /*
+         *  value[[For: statement1 -> statement2 expression statement3 statement4*]]() =
+         *      execute[[statement2]]
+         *      start <:>
+         *      value[[expression]]
+         *      <jz end>
+         *      statement4*.forEach(statement -> execute[[statement]])
+         *      execute[[statement3]]
+         *      <jmp start>
+         *      end <:>
+         */
+        String start = cg.getLabel();
+        String end  = cg.getLabel();
+
+        forLoop.getSt1().accept(this, parameter);
+        cg.label(start);
+        forLoop.getExpr().accept(valueV, null);
+        cg.jz(end);
+        forLoop.getBody().forEach(stmt -> stmt.accept(this, parameter));
+        forLoop.getSt2().accept(this, parameter);
+        cg.jmp(start);
+        cg.label(end);
+
         return null;
     }
 }

@@ -30,6 +30,7 @@ Statements (Abstract Grammar)
     (05)    While:          statement       -> expression statement*
     (06)    Return:         statement       -> expression
     (07)    FuncInvocation: statement       -> expression expression*
+    (08)    For:            statement1       -> statement2 expression statement3 statement4*
 
 Types (Abstract Grammar)
     (01)    CharType:       type            ->

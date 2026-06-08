@@ -186,6 +186,42 @@ statement returns [ List<Statement> ast = new ArrayList<>() ]
                 {$ast.add(new FunctionInvocation($ID.line, $ID.getCharPositionInLine()+1,
                  new Variable($ID.line, $ID.getCharPositionInLine()+1,$ID.text),
                  $expressions)); }
+        // For
+        | 'for' '(' st1=statementSimple ';' exp1=expression ';' st2=statementSimple')' b1=block
+            {
+                    Statement init = !$st1.ast.isEmpty() ? $st1.ast.get(0) : null;
+                    Statement update = !$st2.ast.isEmpty() ? $st2.ast.get(0) : null;
+
+                    $ast.add(new For($exp1.ast.getLine(), $exp1.ast.getColumn(), $exp1.ast, $b1.ast, init, update));
+                }
+        ;
+
+statementSimple returns [ List<Statement> ast = new ArrayList<>() ]
+               locals [ List<Statement> statements = new ArrayList<>(),
+               List<Expression> expressions = new ArrayList<>()]
+        // Print
+        : 'print' exp=expression
+            {$ast.add(new Print($exp.ast.getLine(), $exp.ast.getColumn(), $exp.ast));}
+            (',' exp2=expression
+            {$ast.add(new Print($exp2.ast.getLine(), $exp2.ast.getColumn(), $exp2.ast)); }
+            )*
+        // Read
+        | 'input' exp=expression
+            {$ast.add(new Read($exp.ast.getLine(), $exp.ast.getColumn(), $exp.ast)); }
+            (',' exp2=expression
+            {$ast.add(new Read($exp2.ast.getLine(), $exp2.ast.getColumn(), $exp2.ast)); }
+            )*
+        // Assignment
+        | left=expression '=' right=expression
+            {$ast.add(new Assignment($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast)); }
+        // If - Else
+        | 'if' exp=expression ':' b1=block 'else' ':'  b2=block
+            {$ast.add(new IfElse($exp.ast.getLine(), $exp.ast.getColumn(), $b1.ast, $exp.ast, $b2.ast)); }
+        // If
+        | 'if' exp=expression ':' b1=block
+            {$ast.add(new IfElse($exp.ast.getLine(), $exp.ast.getColumn(), $b1.ast, $exp.ast)); }
+        // Return
+        | 'return' exp=expression
         ;
 
 block returns [List<Statement> ast = new ArrayList<>()]
