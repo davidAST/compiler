@@ -1,0 +1,93 @@
+
+#source	"for-loop-in.txt"
+
+	' * IntType i (offset 0)
+' Invocation to the main function
+call main
+halt
+
+
+#line	3
+
+ main:
+	' * Parameters
+	' * Local variables
+	enter	0
+
+#line	4
+	' * Assignment
+	pusha	0
+	pushi	1
+	storei
+
+ label0:
+	pusha	0
+	loadi
+	pushi	10
+	lei
+	jz	label1
+
+#line	5
+	' * Write
+	pusha	0
+	loadi
+	outi
+
+#line	5
+	' * Write
+	pushb	10
+	outb
+
+#line	4
+	' * Assignment
+	pusha	0
+	pusha	0
+	loadi
+	pushi	1
+	addi
+	storei
+	jmp	label0
+
+ label1:
+
+#line	8
+	' * Write
+	pushb	10
+	outb
+
+#line	10
+	' * Assignment
+	pusha	0
+	pushi	10
+	storei
+
+ label2:
+	pusha	0
+	loadi
+	pushi	0
+	gei
+	jz	label3
+
+#line	11
+	' * Write
+	pusha	0
+	loadi
+	outi
+
+#line	11
+	' * Write
+	pushb	10
+	outb
+
+#line	10
+	' * Assignment
+	pusha	0
+	pusha	0
+	loadi
+	pushi	1
+	subi
+	storei
+	jmp	label2
+
+ label3:
+	ret	0, 0, 0
