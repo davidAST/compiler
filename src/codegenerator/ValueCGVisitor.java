@@ -299,4 +299,32 @@ public class ValueCGVisitor extends AbstractCGVisitor<Void, Void> {
         cg.load(variable.getType().suffix());
         return null;
     }
+
+    // a ^ b = ( a || b ) && !( a && b)
+    @Override
+    public Void visit(Xor xor, Void param) {
+        /*
+         * value[[Xor: expression1 -> expression2 expression3]]() =
+         *      value[[expression2]]
+         *      value[[expression3]]
+         *      <or>
+         *      value[[expression2]]
+         *      value[[expression3]]
+         *      <and>
+         *      <not>
+         *      <and>
+         */
+        xor.getLeft().accept(this, param);
+        xor.getRight().accept(this, param);
+        cg.or();
+
+        xor.getLeft().accept(this, param);
+        xor.getRight().accept(this, param);
+        cg.and();
+        cg.not();
+
+        cg.and();
+
+        return null;
+    }
 }

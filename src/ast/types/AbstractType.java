@@ -94,6 +94,12 @@ public abstract class AbstractType implements Type {
         return new ErrorType("Type '" + this + "' cannot be called as a function", locatable);
     }
 
+    // Xor operation
+    @Override
+    public Type xor(Type type, Locatable locatable) {
+        return new ErrorType("Type '" + this + "' cannot be used in XOR operation with " + type, locatable);
+    }
+
 
     @Override
     public char suffix() {

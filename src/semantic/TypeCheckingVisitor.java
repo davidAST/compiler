@@ -113,6 +113,15 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
         return null;
     }
 
+    @Override
+    public Void visit(Xor xor, Type parameter) {
+        xor.getLeft().accept(this, parameter);
+        xor.getRight().accept(this, parameter);
+        xor.setLValue(false);
+        xor.setType(xor.getLeft().getType().xor(xor.getRight().getType(), xor));
+        return null;
+    }
+
     // Expressions (Literals) ===============================================================
 
     @Override

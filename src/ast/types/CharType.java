@@ -117,6 +117,18 @@ public class CharType extends AbstractType {
     }
 
     @Override
+    public Type xor(Type type, Locatable locatable) {
+        if (type == this
+                || type == IntType.getInstance()) {
+            return IntType.getInstance();
+        } else if (type instanceof ErrorType) {
+            return type;
+        } else {
+            return new ErrorType("Incompatible types in XOR: '" + this + "' and '" + type + "'", locatable);
+        }
+    }
+
+    @Override
     public int numberOfBytes() {
         return 1;
     }

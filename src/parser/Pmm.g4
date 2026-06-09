@@ -127,6 +127,8 @@ expression returns [Expression ast]
           // Comparison
           | left=expression OP=('>'|'>='|'<'|'<='|'!='|'==') right=expression
             {$ast = new Comparison($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast, $OP.text); }
+          | left=expression '^' right=expression
+            {$ast = new Xor($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast); }
           // Logical
           | left=expression OP=('&&'|'||') right=expression
             {$ast = new Logical($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast, $OP.text);}

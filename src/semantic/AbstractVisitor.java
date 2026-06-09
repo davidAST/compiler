@@ -113,6 +113,13 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
         return null;
     }
 
+    @Override
+    public TR visit(Xor xor, TP parameter) {
+        xor.getLeft().accept(this, parameter);
+        xor.getRight().accept(this, parameter);
+        return null;
+    }
+
     // Expressions (Literals) ===============================================================
 
     @Override

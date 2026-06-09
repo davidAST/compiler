@@ -18,6 +18,7 @@ Expressions (Semantic Rules)
     (12)    expression1.type = RealType
     (13)    expression1.type = CharType
     (14)    expression1.type = expression1.definition == null ? new ErrorType("Variable" + ID "was not previously defined"); expression.definition.type
+    (15)    expression1.type = expression2.type.xor(expression3.type)
 
 Statements (Semantic Rules)
     (01)    expression.type.mustBeBuiltIn()
