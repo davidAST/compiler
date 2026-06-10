@@ -18,7 +18,7 @@ Each branch extends the base compiler with a new language feature. Some examples
 
 Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
 
-A compiler for **P--** (P minus minus), a statically-typed imperative language inspired by C++ but designed for educational purposes. Built in Java using ANTLR4, it compiles P-- source code into MAPL assembly, which runs on the MAPL virtual machine.
+A compiler for **P--** (Python minus minus), a statically-typed imperative language inspired by Python but designed for educational purposes. Built in Java using ANTLR4, it compiles P-- source code into MAPL assembly, which runs on the MAPL virtual machine.
 
 ## Language Overview
 
