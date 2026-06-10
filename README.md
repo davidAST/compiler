@@ -14,6 +14,7 @@ Each branch extends the base compiler with a new language feature. Some examples
 | `feature/for-loop` | `for` loop statement |
 | `feature/xor` | `^` (XOR) operator |
 | `feature/switch` | `switch` statement |
+| `feature/ternary` | `? :` ternary conditional operator |
 
 Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
 
