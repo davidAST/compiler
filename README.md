@@ -1,214 +1,179 @@
-# P-- Compiler
+# P-- Compiler — `feature/ternary` branch
+> Extends the base compiler with support for the **ternary conditional operator**.
 
-## Branches
+## What this branch adds
 
-Each branch extends the base compiler with a new language feature. Some examples:
+P-- now supports the ternary conditional operator `? :`, allowing inline conditional expressions. It is the operator with the lowest precedence and right associativity.
 
-| Branch | Feature |
-|---|---|
-| `master` | Base compiler |
-| `feature/increment` | `++` and `--` operators |
-| `feature/multiple-assignment` | Multiple assignment: `a, b, c = 1, 'a', 2.3` |
-| `feature/var-init` | Variable declarations anywhere in a function body (not inside `while`/`if`) |
-| `feature/void-return` | `return;` to exit a void function early |
-| `feature/for-loop` | `for` loop statement |
-| `feature/xor` | `^` (XOR) operator |
-| `feature/switch` | `switch` statement |
-
-Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
-
-A compiler for **P--** (P minus minus), a statically-typed imperative language inspired by C++ but designed for educational purposes. Built in Java using ANTLR4, it compiles P-- source code into MAPL assembly, which runs on the MAPL virtual machine.
-
-## Language Overview
-
-P-- supports:
-- Primitive types: `int`, `double`, `char`
-- Composite types: arrays, structs
-- Control flow: `if/else`, `while`
-- Functions with parameters and return values
-- Type casting and arithmetic/logical expressions
-- `print` and `input` statements
-
-Example P-- program:
 ```
 def main()->None: {
-    i: int;
-    i = 0;
-    while i < 10: {
-        print i, '\n';
-        i = i + 1;
-    }
+    i, max, h, j:int;
+    d:double;
+
+    i = 'a';
+    d = i > 0 ? 1.1 : 0.1;
+    print d, '\n';
+
+    print d > 0 ? 'G' : 'L', '\n';
+
+    j = 0;
+    h = 100;
+    max = i > j ? (i > h ? i : h) : (j > h ? j : h);
+    print max, '\n';
+
+    print i > 90 ? 'A' : i > 80 ? 'B' : 'C', '\n';
 }
 ```
 
-## Project Structure
-
+Expected output:
 ```
-src/
-├── ast/
-│   ├── definitions/       # VarDefinition, FuncDefinition
-│   ├── expressions/       # Arithmetic, logical, access expressions
-│   ├── statements/        # Assignment, Print, Read, If, While, Return...
-│   └── types/             # IntType, CharType, RealType, ArrayType, StructType...
-├── codegenerator/
-│   ├── CodeGenerator.java         # Low-level MAPL instruction emitter
-│   ├── ExecuteCGVisitor.java      # Code generation for statements/definitions
-│   ├── ValueCGVisitor.java        # Code generation for expressions (by value)
-│   └── AddressCGVisitor.java      # Code generation for expressions (by address)
-├── semantic/
-│   ├── IdentificationVisitor.java # Symbol resolution
-│   └── TypeCheckingVisitor.java   # Type checking and inference
-├── parser/
-│   ├── Pmm.g4                     # ANTLR4 grammar
-│   └── ...                        # Generated lexer/parser
-└── symboltable/
-    └── SymbolTable.java
-test/
-inputs&outputs/                    # Sample programs and expected outputs
-mapl/                              # MAPL virtual machine
+1.1
+G
+100
+A
 ```
 
-## Compilation Pipeline
+## Language change
 
-```
-Source (.pmm)
-     │
-     ▼
-  Lexer/Parser (ANTLR4)
-     │
-     ▼
-  AST Construction
-     │
-     ▼
-  Identification (symbol table)
-     │
-     ▼
-  Type Checking
-     │
-     ▼
-  Code Generation
-     │
-     ▼
-  MAPL Assembly (.mapl)
-     │
-     ▼
-  MAPL Virtual Machine → Output
-```
+| | Before | After |
+|---|---|---|
+| Inline conditional | ❌ Requires `if/else` statement | ✅ `condition ? thenExpr : elseExpr` |
+| Right associativity | ❌ Not supported | ✅ `a ? b : c ? d : e` groups as `a ? b : (c ? d : e)` |
+| Type checking | ❌ Not supported | ✅ Condition must be promotable to `int`; both branches must be equal built-in types |
 
-## Requirements
+## Type rules
 
-- Java 17+
-- ANTLR4 (included in `lib/`)
-- MAPL virtual machine (included in `mapl/`)
-
-## Running
-
-1. Compile the project in IntelliJ or with `javac`.
-2. Run the `Main` class passing the input source file and the output assembly file as arguments:
-
-```bash
-java Main <input.txt> <output.txt>
-```
-
-- `input.txt` — P-- source code
-- `output.txt` — generated MAPL assembly
-
-If there are semantic or type errors, they will be printed to stderr and no output file will be generated.
-
-3. Run the generated assembly with the MAPL virtual machine:
-
-```bash
-java -jar mapl/mapl.jar output.txt
-```
-
-Or use the provided `MAPL.cmd` script on Windows.
-
-## Target: MAPL Assembly
-
-The compiler targets MAPL, a stack-based virtual machine. Key instructions:
-
-| Instruction | Description |
+| Constraint | Example violation |
 |---|---|
-| `push`, `pushi`, `pushf` | Push values onto the stack |
-| `loadi`, `storei` | Load/store integers |
-| `call`, `ret` | Function call/return |
-| `jmp`, `jz` | Unconditional/conditional jumps |
-| `outi`, `outf`, `outb` | Print int/double/char |
-| `enter` | Allocate local variable space |
+| First operand must be promotable to `int` | `3.3 ? 'a' : 'b'` → error |
+| Second and third operands must be equal built-in types | `i > 0 ? 1.1 : 'a'` → error |
+| Second and third operands must not be `void` | `0 ? p() : p()` → error |
 
-## Example
+## MAPL output example
 
-Input program (`input.txt`):
+Given:
 ```
-v:[10]double;
-
-# Main program
 def main()->None: {
-    value:double;
-    i,j:int;
-    w:[4][5]int;
-    date:struct { 
-       day, month, year:int;     
-    };
-    
-    input date.day; 
-    date.year = 'a'; 
-    date.month = date.day*date.year%12+1;
-    print date.day, '\n', date.month, '\n', (double)(date.year), '\n';
-    
-    input value;
-       
-    i=0;   
-    while i<10: {
-       v[i]=value;
-       print i,':',v[i], ' ';
-       if i%2:
-          print 'o','d','d','\n';
-       else:
-          print 'e','v','e','n','\n';
-       i=i+1;
-    }
-    print '\n';
-
-    i=0;
-    while i<4: {
-       j=0;
-       while j<5: {
-          w[i][j]=i+j;
-          print w[i][j], ' ';
-          j=j+1;
-       }
-       print '\n';
-       i=i+1;
-    }
+    i:int;
+    d:double;
+    i = 'a';
+    d = i > 0 ? 1.1 : 0.1;
+    print d, '\n';
 }
 ```
 
-Running the generated assembly on the MAPL VM:
+Generated assembly:
+```asm
+#source "ternary-in.txt"
+' Invocation to the main function
+call main
+halt
+
+#line 4
+ main:
+    ' * Parameters
+    ' * Local variables
+    ' * IntType i (offset -2)
+    ' * RealType d (offset -6)
+    enter  6
+
+#line 5
+    ' * Assignment
+    push   bp
+    pushi  -2
+    addi
+    pushb  97
+    b2i
+    storei
+
+#line 6
+    ' * Assignment
+    push   bp
+    pushi  -6
+    addi
+    push   bp
+    pushi  -2
+    addi
+    loadi
+    pushi  0
+    gti
+    jz label0
+    pushf  1.1
+    jmp    label1
+
+ label0:
+    pushf  0.1
+
+ label1:
+    storef
+
+#line 7
+    ' * Write
+    push   bp
+    pushi  -6
+    addi
+    loadf
+    outf
+    ret    0, 6, 0
 ```
->Integer value: 10
-10
-11
-97.0
 
->Float value: 20.0
-0:20.0 even
-1:20.0 odd
-2:20.0 even
-3:20.0 odd
-4:20.0 even
-5:20.0 odd
-6:20.0 even
-7:20.0 odd
-8:20.0 even
-9:20.0 odd
+## Code generation structure
 
-0 1 2 3 4 
-1 2 3 4 5 
-2 3 4 5 6 
-3 4 5 6 7 
+Each ternary expression compiles into the following label pattern:
+
+```
+    <condition>
+    jz  labelElse     ← jump if condition is false (0)
+    <thenExpression>
+    jmp labelEnd      ← skip else branch
+ labelElse:
+    <elseExpression>
+ labelEnd:            ← result is on top of the stack
 ```
 
-## License
+The condition is evaluated once. If it is `0` (false), execution jumps to `labelElse` and evaluates the else expression. Otherwise the then expression is evaluated and execution jumps to `labelEnd`. The result of whichever branch was taken remains on top of the stack.
 
-MIT
+---
+
+## Language specification
+
+### 1. Abstract grammar
+
+A new production is added to the expression rules:
+
+```
+(N)  Ternary : expression1 -> expression2  expression3  expression4
+```
+
+Where `expression2` is the condition, `expression3` is the then-branch and `expression4` is the else-branch.
+
+### 2. Semantic rules (attribute grammar)
+
+A single rule is added to the expression rules:
+
+```
+(N)  expression1.type = expression2.type.ternary(expression3.type, expression4.type)
+```
+
+The `ternary` method is dispatched on `expression2.type` (the condition) using polymorphism:
+- `IntType` and `CharType` override it: both are promotable to `int`, so the condition is valid. The method then checks that `expression3.type` and `expression4.type` are both built-in and equal, and returns that type as the result.
+- All other types (`RealType`, `VoidType`, `StructType`, `ArrayType`...) inherit the default implementation from `AbstractType`, which returns an `ErrorType` since they are not promotable to `int`.
+
+### 3. Code generation template
+
+```
+value[[ Ternary : expression1 -> expression2  expression3  expression4 ]]() =
+    String labelElse = cg.getLabel()
+    String labelEnd  = cg.getLabel()
+
+    value[[ expression2 ]]
+    <jz>  labelElse
+
+    value[[ expression3 ]]
+    <jmp> labelEnd
+
+    labelElse <:>
+    value[[ expression4 ]]
+
+    labelEnd <:>
+```
