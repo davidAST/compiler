@@ -113,6 +113,22 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
         return null;
     }
 
+    @Override
+    public Void visit(Ternary ternary, Type parameter) {
+        ternary.getExpression1().accept(this, parameter);
+        ternary.getExpression2().accept(this, parameter);
+        ternary.getExpression3().accept(this, parameter);
+        ternary.setLValue(false);
+
+        ternary.setType(ternary.getExpression1().getType().ternary(
+                ternary.getExpression2().getType(),
+                ternary.getExpression3().getType(),
+                ternary
+        ));
+
+        return null;
+    }
+
     // Expressions (Literals) ===============================================================
 
     @Override

@@ -148,6 +148,9 @@ expression returns [Expression ast]
           // Variables
           | VAR=ID
             { $ast = new Variable($VAR.line, $VAR.getCharPositionInLine()+1, $VAR.text); }
+          // Ternary Operator
+          | <assoc=right> exp1=expression '?' exp2=expression ':' exp3=expression
+            { $ast = new Ternary($exp1.ast.getLine(), $exp1.ast.getColumn(), $exp1.ast, $exp2.ast, $exp3.ast); }
           ;
 
 statement returns [ List<Statement> ast = new ArrayList<>() ]

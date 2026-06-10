@@ -113,6 +113,14 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
         return null;
     }
 
+    @Override
+    public TR visit(Ternary ternary, TP parameter) {
+        ternary.getExpression1().accept(this, parameter);
+        ternary.getExpression2().accept(this, parameter);
+        ternary.getExpression3().accept(this, parameter);
+        return null;
+    }
+
     // Expressions (Literals) ===============================================================
 
     @Override

@@ -117,6 +117,19 @@ public class CharType extends AbstractType {
     }
 
     @Override
+    public Type ternary(Type type1, Type type2, Locatable locatable) {
+        if (type1 instanceof ErrorType) return type1;
+        if (type2 instanceof ErrorType) return type2;
+
+        type1.mustBeBuiltIn(locatable);
+        type2.mustBeBuiltIn(locatable);
+        if (type1 != type2) {
+            return new ErrorType("Ternary operator types: " + type1 + " and " + type2 + " are not the same", locatable);
+        }
+        return type2;
+    }
+
+    @Override
     public int numberOfBytes() {
         return 1;
     }

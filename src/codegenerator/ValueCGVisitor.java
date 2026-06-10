@@ -257,6 +257,37 @@ public class ValueCGVisitor extends AbstractCGVisitor<Void, Void> {
     }
 
     @Override
+    public Void visit(Ternary ternary, Void param) {
+        /*
+         * value[[Ternary: expression1 -> expression2 expression3 expression4]]() =
+         *      String secondOption = cg.getLabel()
+         *      String end = cg.getLabel()
+         *
+         *      value[[expression2]]
+         *      <jz secondOption>
+         *
+         *      value[[expression3]]
+         *      <jmp end>
+         *
+         *      secondOption <:>
+         *      value[[expression4]]
+         *
+         *      end <:>
+         */
+        String secondOption = cg.getLabel();
+        String end = cg.getLabel();
+
+        ternary.getExpression1().accept(this, param);
+        cg.jz(secondOption);
+        ternary.getExpression2().accept(this, param);
+        cg.jmp(end);
+        cg.label(secondOption);
+        ternary.getExpression3().accept(this, param);
+        cg.label(end);
+        return null;
+    }
+
+    @Override
     public Void visit(IntLiteral intLiteral, Void param) {
         /*
          * value[[Int: expression1 -> INT_CONSTANT]]() =

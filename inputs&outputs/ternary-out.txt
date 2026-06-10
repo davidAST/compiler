@@ -1,0 +1,228 @@
+
+#source	"ternary-in.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line	1
+
+ p:
+	' * Parameters
+	' * Local variables
+	enter	0
+	ret	0, 0, 0
+
+#line	4
+
+ main:
+	' * Parameters
+	' * Local variables
+	' * IntType i (offset -2)
+	' * IntType j (offset -4)
+	' * IntType h (offset -6)
+	' * IntType max (offset -8)
+	' * RealType d (offset -12)
+	enter	12
+
+#line	8
+	' * Assignment
+	push	bp
+	pushi	-2
+	addi
+	pushb	97
+	b2i
+	storei
+
+#line	9
+	' * Assignment
+	push	bp
+	pushi	-12
+	addi
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	0
+	gti
+	jz	label0
+	pushf	1.1
+	jmp	label1
+
+ label0:
+	pushf	0.1
+
+ label1:
+	storef
+
+#line	10
+	' * Write
+	push	bp
+	pushi	-12
+	addi
+	loadf
+	outf
+
+#line	10
+	' * Write
+	pushb	10
+	outb
+
+#line	12
+	' * Write
+	push	bp
+	pushi	-12
+	addi
+	loadf
+	f2i
+	pushi	0
+	gti
+	jz	label2
+	pushb	71
+	jmp	label3
+
+ label2:
+	pushb	76
+
+ label3:
+	outb
+
+#line	12
+	' * Write
+	pushb	10
+	outb
+
+#line	14
+	' * Assignment
+	push	bp
+	pushi	-4
+	addi
+	pushi	0
+	storei
+
+#line	15
+	' * Assignment
+	push	bp
+	pushi	-6
+	addi
+	pushi	100
+	storei
+
+#line	16
+	' * Assignment
+	push	bp
+	pushi	-8
+	addi
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	push	bp
+	pushi	-4
+	addi
+	loadi
+	gti
+	jz	label4
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	push	bp
+	pushi	-6
+	addi
+	loadi
+	gti
+	jz	label6
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	jmp	label7
+
+ label6:
+	push	bp
+	pushi	-6
+	addi
+	loadi
+
+ label7:
+	jmp	label5
+
+ label4:
+	push	bp
+	pushi	-4
+	addi
+	loadi
+	push	bp
+	pushi	-6
+	addi
+	loadi
+	gti
+	jz	label8
+	push	bp
+	pushi	-4
+	addi
+	loadi
+	jmp	label9
+
+ label8:
+	push	bp
+	pushi	-6
+	addi
+	loadi
+
+ label9:
+
+ label5:
+	storei
+
+#line	17
+	' * Write
+	push	bp
+	pushi	-8
+	addi
+	loadi
+	outi
+
+#line	17
+	' * Write
+	pushb	10
+	outb
+
+#line	19
+	' * Write
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	90
+	gti
+	jz	label10
+	pushb	65
+	jmp	label11
+
+ label10:
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	80
+	gti
+	jz	label12
+	pushb	66
+	jmp	label13
+
+ label12:
+	pushb	67
+
+ label13:
+
+ label11:
+	outb
+
+#line	19
+	' * Write
+	pushb	10
+	outb
+	ret	0, 12, 0

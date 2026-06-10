@@ -94,6 +94,17 @@ public abstract class AbstractType implements Type {
         return new ErrorType("Type '" + this + "' cannot be called as a function", locatable);
     }
 
+    @Override
+    public Type ternary(Type type1, Type type2, Locatable locatable) {
+        if(type1 instanceof ErrorType)
+            return type1;
+        if (type2 instanceof ErrorType)
+            return type2;
+        return new ErrorType("Cannot apply ternary operator to the following types: "
+                + this + " - "
+                + type1 + " - "
+                + type2, locatable);
+    }
 
     @Override
     public char suffix() {

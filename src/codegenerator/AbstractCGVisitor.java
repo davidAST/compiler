@@ -106,6 +106,12 @@ public abstract class AbstractCGVisitor<TP, TR> implements Visitor<TP, TR> {
         return null;
     }
 
+    @Override
+    public TR visit(Ternary ternary, TP parameter) {
+        throwException("Ternary");
+        return null;
+    }
+
     // Expressions (Literals) ===============================================================
 
     @Override

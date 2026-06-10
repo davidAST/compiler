@@ -1,0 +1,29 @@
+def p()->None: {
+}
+
+def main()->None: {
+    i, j, h, max:int;
+    d:double;
+
+    i = 'a';
+    d = i > 0 ? 1.1 : 0.1;
+    print d, '\n';
+
+    print d > 0 ? 'G' : 'L', '\n';
+
+    j = 0;
+    h = 100;
+    max = i > j ? (i > h ? i : h) : (j > h ? j : h);
+    print max, '\n';
+
+    print i > 90 ? 'A' : i > 80 ? 'B' : 'C', '\n';
+
+    # error: type of first operand must be promotable (subtype of) int
+    # print 3.3 ? 'a' : 'b';
+
+    # error: typeOf(1.1) != typeOf('a')
+    # d = i > 0 ? 1.1 : 'a';
+
+    # error: void is not a valid type for second and third operands
+    # print 0 ? p() : p();
+}
