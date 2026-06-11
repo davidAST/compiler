@@ -1,0 +1,146 @@
+
+#source	"compound-assignment-in.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line	1
+
+ main:
+	' * Parameters
+	' * Local variables
+	' * IntType a (offset -2)
+	' * IntType b (offset -4)
+	' * RealType x (offset -8)
+	enter	8
+
+#line	5
+	' * Assignment
+	push	bp
+	pushi	-2
+	addi
+	pushi	10
+	storei
+
+#line	6
+	' * Assignment
+	push	bp
+	pushi	-4
+	addi
+	pushi	3
+	storei
+
+#line	7
+	' * Assignment
+	push	bp
+	pushi	-8
+	addi
+	pushf	2.5
+	storef
+
+#line	9
+	' * Compound Assignment
+	push	bp
+	pushi	-2
+	addi
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	5
+	addi
+	storei
+
+#line	10
+	' * Write
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	outi
+
+#line	10
+	' * Write
+	pushb	10
+	outb
+
+#line	12
+	' * Compound Assignment
+	push	bp
+	pushi	-2
+	addi
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	3
+	subi
+	storei
+
+#line	13
+	' * Write
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	outi
+
+#line	13
+	' * Write
+	pushb	10
+	outb
+
+#line	15
+	' * Compound Assignment
+	push	bp
+	pushi	-4
+	addi
+	push	bp
+	pushi	-4
+	addi
+	loadi
+	pushi	4
+	muli
+	storei
+
+#line	16
+	' * Write
+	push	bp
+	pushi	-4
+	addi
+	loadi
+	outi
+
+#line	16
+	' * Write
+	pushb	10
+	outb
+
+#line	18
+	' * Compound Assignment
+	push	bp
+	pushi	-8
+	addi
+	push	bp
+	pushi	-8
+	addi
+	loadf
+	pushf	2.0
+	divf
+	storef
+
+#line	19
+	' * Write
+	push	bp
+	pushi	-8
+	addi
+	loadf
+	outf
+
+#line	19
+	' * Write
+	pushb	10
+	outb
+	ret	0, 8, 0

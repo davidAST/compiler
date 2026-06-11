@@ -1,0 +1,7 @@
+def main()->None: {
+    v: [3]int;
+
+    v[0] = 10;
+    v[0] += 5;
+    print v[0], '\n';
+}

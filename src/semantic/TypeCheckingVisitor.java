@@ -160,6 +160,19 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
     }
 
     @Override
+    public Void visit(CompoundAssignment compoundAssignment, Type parameter) {
+        compoundAssignment.getLeft().accept(this, parameter);
+        compoundAssignment.getRight().accept(this, parameter);
+
+        if(!compoundAssignment.getLeft().getLValue()) {
+            new ErrorType("The left part of the assignment is not modifiable", compoundAssignment.getLeft());
+        }
+
+        compoundAssignment.getRight().getType().mustBeCompoundAssignable(compoundAssignment.getLeft().getType(), compoundAssignment);
+        return null;
+    }
+
+    @Override
     public Void visit(IfElse ifElse, Type parameter) {
         ifElse.getCondition().accept(this, parameter);
         ifElse.getCondition().getType().mustBeLogical(ifElse);

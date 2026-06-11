@@ -140,6 +140,13 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
     }
 
     @Override
+    public TR visit(CompoundAssignment assignment, TP parameter) {
+        assignment.getLeft().accept(this, parameter);
+        assignment.getRight().accept(this, parameter);
+        return null;
+    }
+
+    @Override
     public TR visit(FunctionInvocation functionInvocation, TP parameter) {
         functionInvocation.getVariable().accept(this, parameter);
         for (Expression expression : functionInvocation.getArguments()) {

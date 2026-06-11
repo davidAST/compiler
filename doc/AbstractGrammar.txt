@@ -26,6 +26,7 @@ Statements (Abstract Grammar)
     (01)    Print:          statement       -> expression
     (02)    Read:           statement       -> expression
     (03)    Assignment:     statement       -> expression1 expression2
+    (08)    CompoundAssignment  statement   -> expression1 (+|-|*|/) expression2
     (04)    IfElse:         statement       -> expression statement2* statement3*
     (05)    While:          statement       -> expression statement*
     (06)    Return:         statement       -> expression

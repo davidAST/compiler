@@ -94,6 +94,12 @@ public abstract class AbstractType implements Type {
         return new ErrorType("Type '" + this + "' cannot be called as a function", locatable);
     }
 
+    // Compound Assignable
+    @Override
+    public void mustBeCompoundAssignable(Type type, Locatable locatable) {
+        if (type instanceof ErrorType) return;
+        new ErrorType("Type '" + this + "' cannot be promoted to '" + type + "'", locatable);
+    }
 
     @Override
     public char suffix() {

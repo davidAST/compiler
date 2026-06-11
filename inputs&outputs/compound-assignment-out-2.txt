@@ -1,0 +1,66 @@
+
+#source	"compound-assignment-in-2.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line	1
+
+ main:
+	' * Parameters
+	' * Local variables
+	' * ArrayType[of:IntType,size:3] v (offset -6)
+	enter	6
+
+#line	4
+	' * Assignment
+	push	bp
+	pushi	-6
+	addi
+	pushi	0
+	pushi	2
+	muli
+	addi
+	pushi	10
+	storei
+
+#line	5
+	' * Compound Assignment
+	push	bp
+	pushi	-6
+	addi
+	pushi	0
+	pushi	2
+	muli
+	addi
+	push	bp
+	pushi	-6
+	addi
+	pushi	0
+	pushi	2
+	muli
+	addi
+	loadi
+	pushi	5
+	addi
+	storei
+
+#line	6
+	' * Write
+	push	bp
+	pushi	-6
+	addi
+	pushi	0
+	pushi	2
+	muli
+	addi
+	loadi
+	outi
+
+#line	6
+	' * Write
+	pushb	10
+	outb
+	ret	0, 6, 0

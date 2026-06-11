@@ -166,6 +166,53 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
     }
 
     @Override
+    public Void visit(CompoundAssignment compoundAssignment, FuncDefinition param) {
+        /*
+         * execute[[CompoundAssignment : statement -> expression1 (+|-|*|/) expression2]]() =
+         *      address[[expression1]]
+         *      value[[expression1]]
+         *      value [[expression2]]
+         *      cg.convert(expression2.type, expression1.type)
+         *      switch (OP) {
+         *          case "+"
+         *              <add> expression1.type.suffix()
+                    case "-"
+         *              <sub> expression1.type.suffix()
+         *          case "*"
+         *              <mul> expression1.type.suffix()
+         *          case "/"
+         *              <div> expression1.type.suffix()
+         *      }
+         *      <store> expression1.type.suffix()
+         */
+
+        cg.line(compoundAssignment.getLine());
+        cg.comment("Compound Assignment");
+
+        compoundAssignment.getLeft().accept(addressV, null);
+        compoundAssignment.getLeft().accept(valueV, null);
+        compoundAssignment.getRight().accept(valueV, null);
+        cg.convert(compoundAssignment.getRight().getType(), compoundAssignment.getLeft().getType());
+
+        switch (compoundAssignment.getOperator()) {
+            case "+":
+                cg.add(compoundAssignment.getLeft().getType().suffix());
+                break;
+            case "-":
+                cg.sub(compoundAssignment.getLeft().getType().suffix());
+                break;
+            case "*":
+                cg.mul(compoundAssignment.getLeft().getType().suffix());
+                break;
+            case "/":
+                cg.div(compoundAssignment.getLeft().getType().suffix());
+                break;
+        }
+        cg.store(compoundAssignment.getLeft().getType().suffix());
+        return null;
+    }
+
+    @Override
     public Void visit(IfElse ifElse, FuncDefinition param) {
         /*
          * execute [[IfElse : statement -> expression statement2* statement3*]]() =

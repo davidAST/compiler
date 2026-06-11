@@ -117,6 +117,12 @@ public class CharType extends AbstractType {
     }
 
     @Override
+    public void mustBeCompoundAssignable(Type type, Locatable locatable) {
+        type.mustBeBuiltIn(locatable);
+        type.mustPromoteTo(this, locatable);
+    }
+
+    @Override
     public int numberOfBytes() {
         return 1;
     }

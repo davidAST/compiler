@@ -135,6 +135,12 @@ public abstract class AbstractCGVisitor<TP, TR> implements Visitor<TP, TR> {
     }
 
     @Override
+    public TR visit(CompoundAssignment compoundAssignment, TP parameter) {
+        throwException("Compound Assignment");
+        return null;
+    }
+
+    @Override
     public TR visit(FunctionInvocation functionInvocation, TP parameter) {
         throwException("Function Invocation");
         return null;

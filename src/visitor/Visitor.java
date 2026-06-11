@@ -35,6 +35,7 @@ public interface Visitor<TP, TR> {
 
     // Statements
     public TR visit(Assignment assignment, TP parameter);
+    public TR visit(CompoundAssignment compoundAssignment, TP parameter);
     public TR visit(FunctionInvocation functionInvocation, TP parameter);
     public TR visit(IfElse ifElse, TP parameter);
     public TR visit(Print print, TP parameter);

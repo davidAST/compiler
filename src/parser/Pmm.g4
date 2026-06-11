@@ -168,6 +168,9 @@ statement returns [ List<Statement> ast = new ArrayList<>() ]
         // Assignment
         | left=expression '=' right=expression ';'
             {$ast.add(new Assignment($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast)); }
+        // Compound Assignment
+        | left=expression OP=('+'|'-'|'*'|'/') '=' right=expression ';'
+            {$ast.add(new CompoundAssignment($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast, $OP.text)); }
         // If - Else
         | 'if' exp=expression ':' b1=block 'else' ':'  b2=block
             {$ast.add(new IfElse($exp.ast.getLine(), $exp.ast.getColumn(), $b1.ast, $exp.ast, $b2.ast)); }
