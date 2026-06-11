@@ -1,216 +1,224 @@
-# P-- Compiler
+# P-- Compiler — `feature/do-while` branch
+> Extends the base compiler with support for the **do-while loop statement**.
 
-## Branches
+## What this branch adds
 
-Each branch extends the base compiler with a new language feature. Some examples:
+P-- now supports the `do-while` loop, which guarantees that the body executes **at least once** before the condition is evaluated.
 
-| Branch | Feature |
-|---|---|
-| `master` | Base compiler |
-| `feature/increment` | `++` and `--` operators |
-| `feature/multiple-assignment` | Multiple assignment: `a, b, c = 1, 'a', 2.3` |
-| `feature/var-init` | Variable declarations anywhere in a function body (not inside `while`/`if`) |
-| `feature/void-return` | `return;` to exit a void function early |
-| `feature/for-loop` | `for` loop statement |
-| `feature/xor` | `^` (XOR) operator |
-| `feature/switch` | `switch` statement |
-| `feature/ternary` | `? :` ternary conditional operator |
-| `feature/compound-assignment` | `+=`, `-=`, `*=`, `/=` compound assignment operators |
-
-Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
-
-A compiler for **P--** (Python minus minus), a statically-typed imperative language inspired by Python but designed for educational purposes. Built in Java using ANTLR4, it compiles P-- source code into MAPL assembly, which runs on the MAPL virtual machine.
-
-## Language Overview
-
-P-- supports:
-- Primitive types: `int`, `double`, `char`
-- Composite types: arrays, structs
-- Control flow: `if/else`, `while`
-- Functions with parameters and return values
-- Type casting and arithmetic/logical expressions
-- `print` and `input` statements
-
-Example P-- program:
 ```
 def main()->None: {
-    i: int;
-    i = 0;
-    while i < 10: {
+    i:int;
+
+    input i;
+
+    do: {
         print i, '\n';
         i = i + 1;
-    }
+    } while i < 5;
+
+    print 'E', '\n';
 }
 ```
 
-## Project Structure
-
+Expected output (for input `3`):
 ```
-src/
-├── ast/
-│   ├── definitions/       # VarDefinition, FuncDefinition
-│   ├── expressions/       # Arithmetic, logical, access expressions
-│   ├── statements/        # Assignment, Print, Read, If, While, Return...
-│   └── types/             # IntType, CharType, RealType, ArrayType, StructType...
-├── codegenerator/
-│   ├── CodeGenerator.java         # Low-level MAPL instruction emitter
-│   ├── ExecuteCGVisitor.java      # Code generation for statements/definitions
-│   ├── ValueCGVisitor.java        # Code generation for expressions (by value)
-│   └── AddressCGVisitor.java      # Code generation for expressions (by address)
-├── semantic/
-│   ├── IdentificationVisitor.java # Symbol resolution
-│   └── TypeCheckingVisitor.java   # Type checking and inference
-├── parser/
-│   ├── Pmm.g4                     # ANTLR4 grammar
-│   └── ...                        # Generated lexer/parser
-└── symboltable/
-    └── SymbolTable.java
-test/
-inputs&outputs/                    # Sample programs and expected outputs
-mapl/                              # MAPL virtual machine
+3
+4
+End
 ```
 
-## Compilation Pipeline
+## Language change
+
+| | Before | After |
+|---|---|---|
+| Loop with guaranteed first execution | ❌ Not supported | ✅ `do: { body } while condition;` |
+| Condition evaluated after body | ❌ Only `while` (pre-check) | ✅ `do-while` (post-check) |
+| Body always runs at least once | ❌ Not supported | ✅ Guaranteed |
+
+## Syntax
 
 ```
-Source (.pmm)
-     │
-     ▼
-  Lexer/Parser (ANTLR4)
-     │
-     ▼
-  AST Construction
-     │
-     ▼
-  Identification (symbol table)
-     │
-     ▼
-  Type Checking
-     │
-     ▼
-  Code Generation
-     │
-     ▼
-  MAPL Assembly (.mapl)
-     │
-     ▼
-  MAPL Virtual Machine → Output
+do: block while expression ;
 ```
 
-## Requirements
+Where `block` follows the same rules as `while` — either a single statement or a `{ ... }` block.
 
-- Java 17+
-- ANTLR4 (included in `lib/`)
-- MAPL virtual machine (included in `mapl/`)
+## Semantic rules
 
-## Running
+The `do-while` follows the same type rule as `while` (rule 08):
 
-1. Compile the project in IntelliJ or with `javac`.
-2. Run the `Main` class passing the input source file and the output assembly file as arguments:
-
-```bash
-java Main <input.txt> <output.txt>
-```
-
-- `input.txt` — P-- source code
-- `output.txt` — generated MAPL assembly
-
-If there are semantic or type errors, they will be printed to stderr and no output file will be generated.
-
-3. Run the generated assembly with the MAPL virtual machine:
-
-```bash
-java -jar mapl/mapl.jar output.txt
-```
-
-Or use the provided `MAPL.cmd` script on Windows.
-
-## Target: MAPL Assembly
-
-The compiler targets MAPL, a stack-based virtual machine. Key instructions:
-
-| Instruction | Description |
+| Constraint | Example violation |
 |---|---|
-| `push`, `pushi`, `pushf` | Push values onto the stack |
-| `loadi`, `storei` | Load/store integers |
-| `call`, `ret` | Function call/return |
-| `jmp`, `jz` | Unconditional/conditional jumps |
-| `outi`, `outf`, `outb` | Print int/double/char |
-| `enter` | Allocate local variable space |
+| Condition must be logical/promotable to int | `do: { ... } while 3.5;` → error |
 
-## Example
-
-Input program (`input.txt`):
 ```
-v:[10]double;
+(08)  DoWhile: statement -> statement*  expression
+      expression.type.mustBeLogical()
+```
 
-# Main program
+## MAPL output example
+
+Given:
+```
 def main()->None: {
-    value:double;
-    i,j:int;
-    w:[4][5]int;
-    date:struct { 
-       day, month, year:int;     
-    };
-    
-    input date.day; 
-    date.year = 'a'; 
-    date.month = date.day*date.year%12+1;
-    print date.day, '\n', date.month, '\n', (double)(date.year), '\n';
-    
-    input value;
-       
-    i=0;   
-    while i<10: {
-       v[i]=value;
-       print i,':',v[i], ' ';
-       if i%2:
-          print 'o','d','d','\n';
-       else:
-          print 'e','v','e','n','\n';
-       i=i+1;
-    }
-    print '\n';
+    i:int;
+    input i;
+    do: {
+        print i, '\n';
+        i = i + 1;
+    } while i < 5;
+    print 'E', '\n';
+}
+```
 
-    i=0;
-    while i<4: {
-       j=0;
-       while j<5: {
-          w[i][j]=i+j;
-          print w[i][j], ' ';
-          j=j+1;
-       }
-       print '\n';
-       i=i+1;
+Generated assembly:
+```asm
+#source "doWhile-in.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line   1
+
+ main:
+    ' * Parameters
+    ' * Local variables
+    ' * IntType i (offset -2)
+    enter  2
+
+#line   4
+    ' * Read
+    push   bp
+    pushi  -2
+    addi
+    ini
+    storei
+
+#line   9
+    ' * Do While
+
+ label0:
+    ' * DoWhile body
+
+#line   7
+    ' * Write
+    push   bp
+    pushi  -2
+    addi
+    loadi
+    outi
+
+#line   7
+    ' * Write
+    pushb  10
+    outb
+
+#line   8
+    ' * Assignment
+    push   bp
+    pushi  -2
+    addi
+    push   bp
+    pushi  -2
+    addi
+    loadi
+    pushi  1
+    addi
+    storei
+    ' * DoWhile condition
+    push   bp
+    pushi  -2
+    addi
+    loadi
+    pushi  5
+    lti
+    jnz    label0
+
+#line   11
+    ' * Write
+    pushb  69
+    outb
+    ...
+    ret    0, 2, 0
+```
+
+## Code generation structure
+
+Each `do-while` compiles into the following label pattern:
+
+```
+ labelStart:
+    <body>
+    <condition>
+    jnz labelStart    ← jump back if condition is true (≠ 0)
+```
+
+The body executes unconditionally on the first pass. After each iteration the condition is evaluated; if it is non-zero (true), execution jumps back to `labelStart`. Otherwise it falls through. Only **one label** is needed, compared to the two used by a standard `while`.
+
+---
+
+## Language specification
+
+### 1. Abstract grammar
+
+A new production is added to the statement rules:
+
+```
+(08)  DoWhile:  statement -> statement*  expression
+```
+
+Note the order: the body (`statement*`) comes before the condition (`expression`), reflecting post-check evaluation semantics.
+
+### 2. Semantic rules (attribute grammar)
+
+```
+(08)  expression.type.mustBeLogical()
+```
+
+Identical rule to `while` (rule 05). The condition type is validated via `mustBeLogical()`, which accepts `IntType` and `CharType` (promotable to int) and rejects `RealType`, `VoidType`, `StructType`, and `ArrayType`.
+
+### 3. Code generation template
+
+```
+execute[[ DoWhile : statement -> statement*  expression ]]() =
+    String labelStart = cg.getLabel()
+
+    labelStart <:>
+    execute[[ statement* ]]
+    value[[  expression  ]]
+    <jnz> labelStart
+```
+
+---
+
+## New class: `DoWhile`
+
+A dedicated AST node was added at `ast/statements/DoWhile.java`:
+
+```java
+public class DoWhile extends AbstractStatement {
+    // REPRESENTATION -> "do: { body } while condition;"
+
+    private final Expression condition;
+    private final List<Statement> body;
+
+    public DoWhile(int line, int column, Expression condition, List<Statement> body) {
+        super(line, column);
+        this.condition = condition;
+        this.body = body;
+    }
+
+    @Override
+    public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP parameter) {
+        return visitor.visit(this, parameter);
     }
 }
 ```
 
-Running the generated assembly on the MAPL VM:
+The `Visitor` interface gains one new method:
+
+```java
+TR visit(DoWhile doWhile, TP parameter);
 ```
->Integer value: 10
-10
-11
-97.0
-
->Float value: 20.0
-0:20.0 even
-1:20.0 odd
-2:20.0 even
-3:20.0 odd
-4:20.0 even
-5:20.0 odd
-6:20.0 even
-7:20.0 odd
-8:20.0 even
-9:20.0 odd
-
-0 1 2 3 4 
-1 2 3 4 5 
-2 3 4 5 6 
-3 4 5 6 7 
-```
-
-## License
-
-MIT
