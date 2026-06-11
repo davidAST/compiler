@@ -170,6 +170,12 @@ public abstract class AbstractCGVisitor<TP, TR> implements Visitor<TP, TR> {
         return null;
     }
 
+    @Override
+    public TR visit(DoWhile doWhile, TP parameter) {
+        throwException("Do While");
+        return null;
+    }
+
     // Types ===============================================================
 
     @Override

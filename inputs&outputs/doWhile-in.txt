@@ -1,0 +1,12 @@
+def main()->None: {
+    i:int;
+
+    input i;
+
+    do: {
+        print i, '\n';
+        i = i + 1;
+    } while i < 5;
+
+    print 'E', 'n', 'd', '\n';
+}

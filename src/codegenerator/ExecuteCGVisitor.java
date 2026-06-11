@@ -233,6 +233,35 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
     }
 
     @Override
+    public Void visit(DoWhile doWhile, FuncDefinition param) {
+        /*
+         * execute [[DoWhile : statement -> statement* expression]]() =
+         * String start = cg.getLabel()
+         *
+         * start <:>
+         * statement*.forEach(stmt -> execute [[stmt]]())
+         * value [[expression]]
+         * <jnz start>
+         */
+        cg.line(doWhile.getLine());
+        cg.comment("Do While");
+
+        String startLabel = cg.getLabel();
+
+        cg.label(startLabel);
+
+        cg.comment("DoWhile body");
+        doWhile.getBody().forEach(stmt -> stmt.accept(this, param));
+
+        cg.comment("DoWhile condition");
+        doWhile.getCondition().accept(valueV, null);
+
+        cg.jnz(startLabel);
+
+        return null;
+    }
+
+    @Override
     public Void visit(Return returnStatement, FuncDefinition funcDef) {
         /*
          * execute [[Return : statement -> expression]](funcDef) =

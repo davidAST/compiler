@@ -177,6 +177,8 @@ statement returns [ List<Statement> ast = new ArrayList<>() ]
         // While
         | 'while' exp=expression ':' b2=block
             {$ast.add(new While($exp.ast.getLine(), $exp.ast.getColumn(), $exp.ast, $b2.ast)); }
+        | 'do' ':' b1=block 'while' exp=expression ';'
+            {$ast.add(new DoWhile($exp.ast.getLine(), $exp.ast.getColumn(), $exp.ast, $b1.ast)); }
         // Return
         | 'return' exp=expression ';'
             {$ast.add(new Return($exp.ast.getLine(), $exp.ast.getColumn(), $exp.ast)); }

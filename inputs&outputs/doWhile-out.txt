@@ -1,0 +1,84 @@
+
+#source	"doWhile-in.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line	1
+
+ main:
+	' * Parameters
+	' * Local variables
+	' * IntType i (offset -2)
+	enter	2
+
+#line	4
+	' * Read
+	push	bp
+	pushi	-2
+	addi
+	ini
+	storei
+
+#line	9
+	' * Do While
+
+ label0:
+	' * DoWhile body
+
+#line	7
+	' * Write
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	outi
+
+#line	7
+	' * Write
+	pushb	10
+	outb
+
+#line	8
+	' * Assignment
+	push	bp
+	pushi	-2
+	addi
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	1
+	addi
+	storei
+	' * DoWhile condition
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	pushi	5
+	lti
+	jnz	label0
+
+#line	11
+	' * Write
+	pushb	69
+	outb
+
+#line	11
+	' * Write
+	pushb	110
+	outb
+
+#line	11
+	' * Write
+	pushb	100
+	outb
+
+#line	11
+	' * Write
+	pushb	10
+	outb
+	ret	0, 2, 0
