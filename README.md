@@ -15,6 +15,7 @@ Each branch extends the base compiler with a new language feature. Some examples
 | `feature/xor` | `^` (XOR) operator |
 | `feature/switch` | `switch` statement |
 | `feature/ternary` | `? :` ternary conditional operator |
+| `feature/compound-assignment` | `+=`, `-=`, `*=`, `/=` compound assignment operators |
 
 Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
 
