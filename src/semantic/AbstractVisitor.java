@@ -188,6 +188,14 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
         return null;
     }
 
+    @Override
+    public TR visit(Each each, TP parameter) {
+        each.getArray().accept(this, parameter);
+        each.getParam().accept(this, parameter);
+        each.getBody().forEach(st -> st.accept(this, parameter));
+        return null;
+    }
+
     // Types ===============================================================
 
     @Override

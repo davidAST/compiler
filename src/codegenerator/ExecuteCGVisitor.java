@@ -5,7 +5,9 @@ import ast.definitions.Definition;
 import ast.definitions.FuncDefinition;
 import ast.definitions.VarDefinition;
 import ast.statements.*;
+import ast.types.ArrayType;
 import ast.types.FunctionType;
+import ast.types.Type;
 import ast.types.VoidType;
 
 /*
@@ -289,6 +291,40 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
         if (!(funcInvocation.getType() instanceof VoidType)) {
             cg.pop(funcInvocation.getType().suffix());
         }
+        return null;
+    }
+
+    @Override
+    public Void visit(Each each, FuncDefinition param) {
+        /*
+         * execute[[Each: statement1 -> expression1 expression2 statement2]](funcDef) =
+         *      for (i = 0; i < expression1.type.size; i++)
+         *          address[[expression2]]
+         *          address[[expression1]]
+         *          <pushi> i * expression1.type.elementType.numberOfBytes()
+         *          <load> expression1.type.elementType.suffix()
+         *          convertTo(expression1.type.elementType, expression2.type)
+         *          <store> expression2.type.suffix()
+         *          execute[[statement2]]
+         */
+        cg.line(each.getLine());
+        cg.comment("Each");
+
+        ArrayType arrayType = (ArrayType) each.getArray().getType();
+        Type elementType = arrayType.getOf();
+
+        for (int i = 0; i < arrayType.getSize(); i++) {
+            each.getParam().accept(addressV, null);
+            each.getArray().accept(addressV, null);
+            // offset = i * elementSize
+            cg.pushi(i * elementType.numberOfBytes());
+            cg.add('i');
+            cg.load(elementType.suffix());
+            cg.convert(elementType, each.getParam().getType());
+            cg.store(each.getParam().getType().suffix());
+            each.getBody().forEach(stmt -> stmt.accept(this, param));
+        }
+
         return null;
     }
 }

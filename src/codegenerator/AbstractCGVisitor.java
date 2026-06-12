@@ -170,6 +170,12 @@ public abstract class AbstractCGVisitor<TP, TR> implements Visitor<TP, TR> {
         return null;
     }
 
+    @Override
+    public TR visit(Each each, TP parameter) {
+        throwException("Each");
+        return null;
+    }
+
     // Types ===============================================================
 
     @Override

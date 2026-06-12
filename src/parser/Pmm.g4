@@ -186,6 +186,13 @@ statement returns [ List<Statement> ast = new ArrayList<>() ]
                 {$ast.add(new FunctionInvocation($ID.line, $ID.getCharPositionInLine()+1,
                  new Variable($ID.line, $ID.getCharPositionInLine()+1,$ID.text),
                  $expressions)); }
+        | exp=expression '.' 'each' '(' exp2=expression '->' st=statement')' ';'
+            {$ast.add(new Each(
+                                $exp.ast.getLine(),
+                                $exp.ast.getColumn(),
+                                $exp.ast,
+                                $exp2.ast,
+                                $st.ast));}
         ;
 
 block returns [List<Statement> ast = new ArrayList<>()]

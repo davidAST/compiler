@@ -1,0 +1,170 @@
+
+#source	"each-in.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line	1
+
+ main:
+	' * Parameters
+	' * Local variables
+	' * ArrayType[of:IntType,size:5] a (offset -10)
+	' * IntType element (offset -12)
+	enter	12
+
+#line	6
+	' * Assignment
+	push	bp
+	pushi	-10
+	addi
+	pushi	0
+	pushi	2
+	muli
+	addi
+	pushi	1
+	storei
+
+#line	7
+	' * Assignment
+	push	bp
+	pushi	-10
+	addi
+	pushi	1
+	pushi	2
+	muli
+	addi
+	pushi	2
+	storei
+
+#line	8
+	' * Assignment
+	push	bp
+	pushi	-10
+	addi
+	pushi	2
+	pushi	2
+	muli
+	addi
+	pushi	3
+	storei
+
+#line	9
+	' * Assignment
+	push	bp
+	pushi	-10
+	addi
+	pushi	3
+	pushi	2
+	muli
+	addi
+	pushi	4
+	storei
+
+#line	10
+	' * Assignment
+	push	bp
+	pushi	-10
+	addi
+	pushi	4
+	pushi	2
+	muli
+	addi
+	pushi	5
+	storei
+
+#line	12
+	' * Each
+	push	bp
+	pushi	-12
+	addi
+	push	bp
+	pushi	-10
+	addi
+	pushi	0
+	addi
+	loadi
+	storei
+
+#line	12
+	' * Write
+	push	bp
+	pushi	-12
+	addi
+	loadi
+	outi
+	push	bp
+	pushi	-12
+	addi
+	push	bp
+	pushi	-10
+	addi
+	pushi	2
+	addi
+	loadi
+	storei
+
+#line	12
+	' * Write
+	push	bp
+	pushi	-12
+	addi
+	loadi
+	outi
+	push	bp
+	pushi	-12
+	addi
+	push	bp
+	pushi	-10
+	addi
+	pushi	4
+	addi
+	loadi
+	storei
+
+#line	12
+	' * Write
+	push	bp
+	pushi	-12
+	addi
+	loadi
+	outi
+	push	bp
+	pushi	-12
+	addi
+	push	bp
+	pushi	-10
+	addi
+	pushi	6
+	addi
+	loadi
+	storei
+
+#line	12
+	' * Write
+	push	bp
+	pushi	-12
+	addi
+	loadi
+	outi
+	push	bp
+	pushi	-12
+	addi
+	push	bp
+	pushi	-10
+	addi
+	pushi	8
+	addi
+	loadi
+	storei
+
+#line	12
+	' * Write
+	push	bp
+	pushi	-12
+	addi
+	loadi
+	outi
+	ret	0, 12, 0

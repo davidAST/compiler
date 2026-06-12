@@ -175,6 +175,22 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
     }
 
     @Override
+    public Void visit(Each each, Type parameter) {
+        each.getArray().accept(this, parameter);
+        each.getParam().accept(this, parameter);
+        each.getBody().forEach(eachStatement -> eachStatement.accept(this, parameter));
+
+        each.getArray().getType().mustBeArray(each);
+        ArrayType type = (ArrayType) each.getArray().getType();
+        type.getOf().mustPromoteTo(each.getParam().getType(), each);
+        if (!each.getParam().getLValue()) {
+            new ErrorType("Parameter must be a LValue", each);
+        }
+
+        return null;
+    }
+
+    @Override
     public Void visit(FunctionInvocation functionInvocation, Type parameter) {
         functionInvocation.getVariable().accept(this, parameter);
         for (Expression expression : functionInvocation.getArguments()) {

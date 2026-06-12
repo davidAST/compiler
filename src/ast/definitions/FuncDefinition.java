@@ -6,7 +6,7 @@ import visitor.Visitor;
 
 import java.util.List;
 
-public class FuncDefinition extends AbstractDefinition {
+public class    FuncDefinition extends AbstractDefinition {
     private final List<VarDefinition> definitions;
     private final List<Statement> statements;
     private int localVarsSize;

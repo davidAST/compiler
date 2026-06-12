@@ -94,6 +94,10 @@ public abstract class AbstractType implements Type {
         return new ErrorType("Type '" + this + "' cannot be called as a function", locatable);
     }
 
+    @Override
+    public void mustBeArray(Locatable locatable) {
+        new ErrorType("Type '" + this + "' is not array type", locatable);
+    }
 
     @Override
     public char suffix() {

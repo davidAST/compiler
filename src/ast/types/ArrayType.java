@@ -33,6 +33,10 @@ public class ArrayType extends AbstractType {
     }
 
     @Override
+    public void mustBeArray(Locatable locatable) {
+    }
+
+    @Override
     public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP parameter) {
         return visitor.visit(this, parameter);
     }
