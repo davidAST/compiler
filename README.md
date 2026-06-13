@@ -1,216 +1,158 @@
-# P-- Compiler
+# P-- Compiler — `feature/forEach` branch
+> Extends the base compiler with support for the **`each` statement** (forEach loop over arrays).
 
-## Branches
+## What this branch adds
 
-Each branch extends the base compiler with a new language feature. Some examples:
+P-- now supports the `each` statement, allowing iteration over all elements of an array with a clean and concise syntax. The array elements are assigned one by one to a parameter variable, over which a body of statements is executed.
 
-| Branch | Feature |
-|---|---|
-| `master` | Base compiler |
-| `feature/increment` | `++` and `--` operators |
-| `feature/multiple-assignment` | Multiple assignment: `a, b, c = 1, 'a', 2.3` |
-| `feature/var-init` | Variable declarations anywhere in a function body (not inside `while`/`if`) |
-| `feature/void-return` | `return;` to exit a void function early |
-| `feature/for-loop` | `for` loop statement |
-| `feature/xor` | `^` (XOR) operator |
-| `feature/switch` | `switch` statement |
-| `feature/ternary` | `? :` ternary conditional operator |
-| `feature/compound-assignment` | `+=`, `-=`, `*=`, `/=` compound assignment operators |
-
-Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
-
-A compiler for **P--** (Python minus minus), a statically-typed imperative language inspired by Python but designed for educational purposes. Built in Java using ANTLR4, it compiles P-- source code into MAPL assembly, which runs on the MAPL virtual machine.
-
-## Language Overview
-
-P-- supports:
-- Primitive types: `int`, `double`, `char`
-- Composite types: arrays, structs
-- Control flow: `if/else`, `while`
-- Functions with parameters and return values
-- Type casting and arithmetic/logical expressions
-- `print` and `input` statements
-
-Example P-- program:
 ```
-def main()->None: {
-    i: int;
-    i = 0;
-    while i < 10: {
-        print i, '\n';
-        i = i + 1;
-    }
+def main() -> None:
+{
+    a: [5]int;
+    element: int;
+    a[0] = 1;
+    a[1] = 2;
+    a[2] = 3;
+    a[3] = 4;
+    a[4] = 5;
+    a.each(element -> print element;);
 }
 ```
 
-## Project Structure
-
+Expected output:
 ```
-src/
-├── ast/
-│   ├── definitions/       # VarDefinition, FuncDefinition
-│   ├── expressions/       # Arithmetic, logical, access expressions
-│   ├── statements/        # Assignment, Print, Read, If, While, Return...
-│   └── types/             # IntType, CharType, RealType, ArrayType, StructType...
-├── codegenerator/
-│   ├── CodeGenerator.java         # Low-level MAPL instruction emitter
-│   ├── ExecuteCGVisitor.java      # Code generation for statements/definitions
-│   ├── ValueCGVisitor.java        # Code generation for expressions (by value)
-│   └── AddressCGVisitor.java      # Code generation for expressions (by address)
-├── semantic/
-│   ├── IdentificationVisitor.java # Symbol resolution
-│   └── TypeCheckingVisitor.java   # Type checking and inference
-├── parser/
-│   ├── Pmm.g4                     # ANTLR4 grammar
-│   └── ...                        # Generated lexer/parser
-└── symboltable/
-    └── SymbolTable.java
-test/
-inputs&outputs/                    # Sample programs and expected outputs
-mapl/                              # MAPL virtual machine
+1
+2
+3
+4
+5
 ```
 
-## Compilation Pipeline
+## Language change
 
-```
-Source (.pmm)
-     │
-     ▼
-  Lexer/Parser (ANTLR4)
-     │
-     ▼
-  AST Construction
-     │
-     ▼
-  Identification (symbol table)
-     │
-     ▼
-  Type Checking
-     │
-     ▼
-  Code Generation
-     │
-     ▼
-  MAPL Assembly (.mapl)
-     │
-     ▼
-  MAPL Virtual Machine → Output
-```
+| | Before | After |
+|---|---|---|
+| Array iteration | ❌ Requires manual `while` loop with index | ✅ `array.each(param -> body;)` |
+| Element assignment | ❌ Manual indexing required | ✅ Automatic element-by-element assignment to parameter |
+| Type checking | ❌ Not supported | ✅ Array element type must be promotable to parameter type; parameter must be an LValue |
 
-## Requirements
+## Type rules
 
-- Java 17+
-- ANTLR4 (included in `lib/`)
-- MAPL virtual machine (included in `mapl/`)
-
-## Running
-
-1. Compile the project in IntelliJ or with `javac`.
-2. Run the `Main` class passing the input source file and the output assembly file as arguments:
-
-```bash
-java Main <input.txt> <output.txt>
-```
-
-- `input.txt` — P-- source code
-- `output.txt` — generated MAPL assembly
-
-If there are semantic or type errors, they will be printed to stderr and no output file will be generated.
-
-3. Run the generated assembly with the MAPL virtual machine:
-
-```bash
-java -jar mapl/mapl.jar output.txt
-```
-
-Or use the provided `MAPL.cmd` script on Windows.
-
-## Target: MAPL Assembly
-
-The compiler targets MAPL, a stack-based virtual machine. Key instructions:
-
-| Instruction | Description |
+| Constraint | Example violation |
 |---|---|
-| `push`, `pushi`, `pushf` | Push values onto the stack |
-| `loadi`, `storei` | Load/store integers |
-| `call`, `ret` | Function call/return |
-| `jmp`, `jz` | Unconditional/conditional jumps |
-| `outi`, `outf`, `outb` | Print int/double/char |
-| `enter` | Allocate local variable space |
+| First operand must be an array type | `myInt.each(e -> print e;)` → error |
+| Array element type must be promotable to parameter type | `a: [3]double; e: int; a.each(e -> ...)` → error |
+| Parameter must be an LValue | `a.each(0 -> ...)` → error |
 
-## Example
+## MAPL output example
 
-Input program (`input.txt`):
+Given:
 ```
-v:[10]double;
-
-# Main program
-def main()->None: {
-    value:double;
-    i,j:int;
-    w:[4][5]int;
-    date:struct { 
-       day, month, year:int;     
-    };
-    
-    input date.day; 
-    date.year = 'a'; 
-    date.month = date.day*date.year%12+1;
-    print date.day, '\n', date.month, '\n', (double)(date.year), '\n';
-    
-    input value;
-       
-    i=0;   
-    while i<10: {
-       v[i]=value;
-       print i,':',v[i], ' ';
-       if i%2:
-          print 'o','d','d','\n';
-       else:
-          print 'e','v','e','n','\n';
-       i=i+1;
-    }
-    print '\n';
-
-    i=0;
-    while i<4: {
-       j=0;
-       while j<5: {
-          w[i][j]=i+j;
-          print w[i][j], ' ';
-          j=j+1;
-       }
-       print '\n';
-       i=i+1;
-    }
+def main() -> None:
+{
+    a: [5]int;
+    element: int;
+    a[0] = 1;
+    ...
+    a.each(element -> print element;);
 }
 ```
 
-Running the generated assembly on the MAPL VM:
+Generated assembly (excerpt for the `each` loop):
+```asm
+#source "each-in.txt"
+' Invocation to the main function
+call main
+halt
+
+#line 1
+ main:
+    ' * Parameters
+    ' * Local variables
+    ' * ArrayType[of:IntType,size:5] a (offset -10)
+    ' * IntType element (offset -12)
+    enter  12
+
+#line 12
+    ' * Each
+    push   bp
+    pushi  -12
+    addi
+    push   bp
+    pushi  -10
+    addi
+    pushi  0
+    addi
+    loadi
+    storei
+
+#line 12
+    ' * Write
+    push   bp
+    pushi  -12
+    addi
+    loadi
+    outi
+    ...
+    ret    0, 12, 0
 ```
->Integer value: 10
-10
-11
-97.0
 
->Float value: 20.0
-0:20.0 even
-1:20.0 odd
-2:20.0 even
-3:20.0 odd
-4:20.0 even
-5:20.0 odd
-6:20.0 even
-7:20.0 odd
-8:20.0 even
-9:20.0 odd
+## Code generation structure
 
-0 1 2 3 4 
-1 2 3 4 5 
-2 3 4 5 6 
-3 4 5 6 7 
+Each `each` statement unrolls the loop statically at compile time. For each index `i` from `0` to `array.size - 1`, the following pattern is emitted:
+
+```
+    address[[ param ]]
+    address[[ array ]]
+    <pushi> i * elementType.numberOfBytes()
+    <add i>
+    <load> elementType.suffix()
+    convertTo(elementType, param.type)
+    <store> param.type.suffix()
+    execute[[ body ]]
 ```
 
-## License
+The loop is fully unrolled — no runtime branching or jump labels are generated. Each element of the array is loaded by its static offset, assigned to the parameter variable, and the body is executed once per element.
 
-MIT
+---
+
+## Language specification
+
+### 1. Abstract grammar
+
+A new production is added to the statement rules:
+
+```
+(08)  Each : statement1 -> expression1  expression2  statement
+```
+
+Where `expression1` is the array, `expression2` is the iteration parameter (must be an LValue), and `statement` is the body executed for each element.
+
+### 2. Semantic rules (attribute grammar)
+
+The following rules are added to the statement rules:
+
+```
+(08)  expression1.type.mustBeArray()
+      expression1.type.elementType.mustPromoteTo(expression2.type)
+      expression2.lvalue
+```
+
+The `mustBeArray` method is dispatched polymorphically:
+- `ArrayType` overrides it with an empty (valid) implementation.
+- All other types (`IntType`, `RealType`, `CharType`, etc.) inherit the default from `AbstractType`, which produces an `ErrorType`.
+
+### 3. Code generation template
+
+```
+execute[[ Each : statement1 -> expression1  expression2  statement2 ]](funcDef) =
+    for i = 0; i < expression1.type.size; i++:
+        address[[ expression2 ]]
+        address[[ expression1 ]]
+        <pushi> i * expression1.type.elementType.numberOfBytes()
+        <add i>
+        <load> expression1.type.elementType.suffix()
+        convertTo(expression1.type.elementType, expression2.type)
+        <store> expression2.type.suffix()
+        execute[[ statement2 ]]
+```
