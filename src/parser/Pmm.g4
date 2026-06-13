@@ -127,6 +127,20 @@ expression returns [Expression ast]
           // Comparison
           | left=expression OP=('>'|'>='|'<'|'<='|'!='|'==') right=expression
             {$ast = new Comparison($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast, $OP.text); }
+          | left=expression '<<' middle=expression '<<' right=expression
+                {$ast = new Logical(
+                    $left.ast.getLine(),
+                    $left.ast.getColumn(),
+                    new Comparison($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $middle.ast, "<"),
+                    new Comparison($left.ast.getLine(), $left.ast.getColumn(), $middle.ast, $right.ast, "<"),
+                    "&&");}
+          | left2=expression '>>' middle2=expression '>>' right2=expression
+                {$ast = new Logical(
+                    $left2.ast.getLine(),
+                    $left2.ast.getColumn(),
+                    new Comparison($left2.ast.getLine(), $left2.ast.getColumn(), $left2.ast, $middle2.ast, ">"),
+                    new Comparison($left2.ast.getLine(), $left2.ast.getColumn(), $middle2.ast, $right2.ast, ">"),
+                    "&&");}
           // Logical
           | left=expression OP=('&&'|'||') right=expression
             {$ast = new Logical($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast, $OP.text);}
