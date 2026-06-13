@@ -16,6 +16,10 @@ Each branch extends the base compiler with a new language feature. Some examples
 | `feature/switch` | `switch` statement |
 | `feature/ternary` | `? :` ternary conditional operator |
 | `feature/compound-assignment` | `+=`, `-=`, `*=`, `/=` compound assignment operators |
+| `feature/do-while` | `do-while` loop statement |
+| `feature/forEach` | `each` statement (forEach loop over arrays) |
+| `feature/contains` | `array.contains(element)` expression |
+| `feature/range-comparator` | `<<` and `>>` range comparator operators |
 
 Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
 
