@@ -113,6 +113,15 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
         return null;
     }
 
+    @Override
+    public Void visit(Contains contains, Type parameter) {
+        contains.setLValue(false);
+        contains.getArray().accept(this, parameter);
+        contains.getElement().accept(this, parameter);
+        contains.setType(contains.getArray().getType().contains(contains.getElement().getType(), contains));
+        return null;
+    }
+
     // Expressions (Literals) ===============================================================
 
     @Override

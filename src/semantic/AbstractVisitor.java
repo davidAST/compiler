@@ -109,6 +109,13 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
     }
 
     @Override
+    public TR visit(Contains contains, TP parameter) {
+        contains.getArray().accept(this, parameter);
+        contains.getElement().accept(this, parameter);
+        return null;
+    }
+
+    @Override
     public TR visit(Variable variable, TP parameter) {
         return null;
     }

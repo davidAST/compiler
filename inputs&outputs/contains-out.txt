@@ -1,0 +1,158 @@
+
+#source	"inputs&outputs/contains-in.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line	1
+
+ main:
+	' * Parameters
+	' * Local variables
+	' * ArrayType[of:IntType,size:3] a (offset -6)
+	enter	6
+
+#line	4
+	' * Assignment
+	push	bp
+	pushi	-6
+	addi
+	pushi	0
+	pushi	2
+	muli
+	addi
+	pushi	1
+	storei
+
+#line	5
+	' * Assignment
+	push	bp
+	pushi	-6
+	addi
+	pushi	1
+	pushi	2
+	muli
+	addi
+	pushi	2
+	storei
+
+#line	6
+	' * Assignment
+	push	bp
+	pushi	-6
+	addi
+	pushi	2
+	pushi	2
+	muli
+	addi
+	pushi	3
+	storei
+
+#line	8
+	' * If else
+	push	bp
+	pushi	-6
+	addi
+	pushi	0
+	addi
+	loadi
+	pushi	2
+	eqi
+	jnz	label2
+	push	bp
+	pushi	-6
+	addi
+	pushi	2
+	addi
+	loadi
+	pushi	2
+	eqi
+	jnz	label2
+	push	bp
+	pushi	-6
+	addi
+	pushi	4
+	addi
+	loadi
+	pushi	2
+	eqi
+	jnz	label2
+	pushi	0
+	jmp	label3
+
+ label2:
+	pushi	1
+
+ label3:
+	jz	label0
+
+#line	9
+	' * Write
+	pushb	49
+	outb
+	jmp	label1
+
+ label0:
+
+#line	11
+	' * Write
+	pushb	48
+	outb
+
+ label1:
+
+#line	13
+	' * If else
+	push	bp
+	pushi	-6
+	addi
+	pushi	0
+	addi
+	loadi
+	pushi	5
+	eqi
+	jnz	label6
+	push	bp
+	pushi	-6
+	addi
+	pushi	2
+	addi
+	loadi
+	pushi	5
+	eqi
+	jnz	label6
+	push	bp
+	pushi	-6
+	addi
+	pushi	4
+	addi
+	loadi
+	pushi	5
+	eqi
+	jnz	label6
+	pushi	0
+	jmp	label7
+
+ label6:
+	pushi	1
+
+ label7:
+	jz	label4
+
+#line	14
+	' * Write
+	pushb	49
+	outb
+	jmp	label5
+
+ label4:
+
+#line	16
+	' * Write
+	pushb	48
+	outb
+
+ label5:
+	ret	0, 6, 0

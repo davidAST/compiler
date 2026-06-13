@@ -130,6 +130,9 @@ expression returns [Expression ast]
           // Logical
           | left=expression OP=('&&'|'||') right=expression
             {$ast = new Logical($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast, $OP.text);}
+          // Contains
+          | left=expression '.' 'contains' '(' right=expression ')'
+            {$ast = new Contains($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast); }
           // Function Invocation
           | ID '(' (exp1=expression {$expressions.add($exp1.ast); }
            (',' exp2=expression {$expressions.add($exp2.ast); } )*)? ')'

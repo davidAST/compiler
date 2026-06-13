@@ -2,7 +2,9 @@ package codegenerator;
 import ast.expressions.*;
 import ast.expressions.literals.*;
 import ast.statements.FunctionInvocation;
+import ast.types.ArrayType;
 import ast.types.FunctionType;
+import ast.types.Type;
 
 import java.util.List;
 
@@ -253,6 +255,52 @@ public class ValueCGVisitor extends AbstractCGVisitor<Void, Void> {
         cg.convert(modulus.getRight().getType(), modulus.getType());
 
         cg.mod();
+        return null;
+    }
+
+    @Override
+    public Void visit(Contains contains, Void param) {
+        /*
+         * value[[Contains: expression1 -> expression2 expression3]]() =
+         *      String endLabel = cg.getLabel()
+         *      String foundLabel = cg.getLabel()
+         *      for (int i = 0; i < expression2.type.size; i++) {
+         *          address[[expression2[i]]
+         *          value[[expression3]]
+         *          expression3.type.convert(expression2.type.type)
+         *          <eq>
+         *          <jnz foundLabel>
+         *      }
+         *      <pushi 0>
+         *      <jmp endLabel>
+         *
+         *      foundLabel<:>
+         *      <pushi 1>
+         *
+         *      endLabel <:>
+         */
+        String foundLabel = cg.getLabel();
+        String endLabel = cg.getLabel();
+
+        ArrayType type = (ArrayType) contains.getArray().getType();
+        for (int i = 0; i < type.getSize(); i++) {
+            contains.getArray().accept(addressVisitor, param);
+            cg.pushi(i * type.getOf().numberOfBytes());
+            cg.add('i');
+            cg.load(type.getOf().suffix());
+            contains.getElement().accept(this, param);
+            cg.convert(contains.getElement().getType(), type.getOf());
+            cg.eq(type.getOf().suffix());
+            cg.jnz(foundLabel);
+        }
+
+        cg.pushi(0);
+        cg.jmp(endLabel);
+
+        cg.label(foundLabel);
+        cg.pushi(1);
+
+        cg.label(endLabel);
         return null;
     }
 

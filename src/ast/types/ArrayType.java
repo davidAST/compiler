@@ -33,6 +33,13 @@ public class ArrayType extends AbstractType {
     }
 
     @Override
+    public Type contains(Type type, Locatable locatable) {
+        if (type instanceof ErrorType) return type;
+        type.mustPromoteTo(this.getOf(), locatable);
+        return IntType.getInstance();
+    }
+
+    @Override
     public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP parameter) {
         return visitor.visit(this, parameter);
     }

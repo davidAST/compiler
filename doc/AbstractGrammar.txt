@@ -21,6 +21,7 @@ Expressions (Abstract Grammar)
     (12)    Real:           expression1     -> REAL_CONSTANT
     (13)    Char:           expression1     -> CHAR_CONSTANT
     (14)    Variable:       expression1     -> ID
+    (15)    Contains:       expression1     -> expression2 expression3
 
 Statements (Abstract Grammar)
     (01)    Print:          statement       -> expression

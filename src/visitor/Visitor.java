@@ -27,6 +27,7 @@ public interface Visitor<TP, TR> {
     public TR visit(Negation negation, TP parameter);
     public TR visit(UnaryMinus minus, TP parameter);
     public TR visit(Variable variable, TP parameter);
+    public TR visit(Contains contains, TP parameter);
 
     // Expressions (literals)
     public TR visit(CharLiteral charLiteral, TP parameter);
