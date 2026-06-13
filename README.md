@@ -1,216 +1,141 @@
-# P-- Compiler
+# P-- Compiler — `feature/range-comparator` branch
+> Extends the base compiler with support for the **range comparator operators `<<` and `>>`** (chained range checks).
 
-## Branches
+## What this branch adds
 
-Each branch extends the base compiler with a new language feature. Some examples:
+P-- now supports two new infix operators for range checking: `<<` and `>>`. They allow checking whether a value falls within a range in a single expression, without needing to chain `&&` manually.
 
-| Branch | Feature |
-|---|---|
-| `master` | Base compiler |
-| `feature/increment` | `++` and `--` operators |
-| `feature/multiple-assignment` | Multiple assignment: `a, b, c = 1, 'a', 2.3` |
-| `feature/var-init` | Variable declarations anywhere in a function body (not inside `while`/`if`) |
-| `feature/void-return` | `return;` to exit a void function early |
-| `feature/for-loop` | `for` loop statement |
-| `feature/xor` | `^` (XOR) operator |
-| `feature/switch` | `switch` statement |
-| `feature/ternary` | `? :` ternary conditional operator |
-| `feature/compound-assignment` | `+=`, `-=`, `*=`, `/=` compound assignment operators |
-
-Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
-
-A compiler for **P--** (Python minus minus), a statically-typed imperative language inspired by Python but designed for educational purposes. Built in Java using ANTLR4, it compiles P-- source code into MAPL assembly, which runs on the MAPL virtual machine.
-
-## Language Overview
-
-P-- supports:
-- Primitive types: `int`, `double`, `char`
-- Composite types: arrays, structs
-- Control flow: `if/else`, `while`
-- Functions with parameters and return values
-- Type casting and arithmetic/logical expressions
-- `print` and `input` statements
-
-Example P-- program:
 ```
-def main()->None: {
-    i: int;
-    i = 0;
-    while i < 10: {
-        print i, '\n';
-        i = i + 1;
-    }
+def main() -> None:
+{
+    a: int;
+    b: int;
+    a = 1;
+    b = 10;
+
+    if 1 << 5 << 10:
+        print '1';
+    else:
+        print '0';
+
+    if 1 >> 5 >> 10:
+        print '1';
+    else:
+        print '0';
+
+    if a << 5 << b:
+        print '1';
+    else:
+        print '0';
 }
 ```
 
-## Project Structure
-
+Expected output:
 ```
-src/
-├── ast/
-│   ├── definitions/       # VarDefinition, FuncDefinition
-│   ├── expressions/       # Arithmetic, logical, access expressions
-│   ├── statements/        # Assignment, Print, Read, If, While, Return...
-│   └── types/             # IntType, CharType, RealType, ArrayType, StructType...
-├── codegenerator/
-│   ├── CodeGenerator.java         # Low-level MAPL instruction emitter
-│   ├── ExecuteCGVisitor.java      # Code generation for statements/definitions
-│   ├── ValueCGVisitor.java        # Code generation for expressions (by value)
-│   └── AddressCGVisitor.java      # Code generation for expressions (by address)
-├── semantic/
-│   ├── IdentificationVisitor.java # Symbol resolution
-│   └── TypeCheckingVisitor.java   # Type checking and inference
-├── parser/
-│   ├── Pmm.g4                     # ANTLR4 grammar
-│   └── ...                        # Generated lexer/parser
-└── symboltable/
-    └── SymbolTable.java
-test/
-inputs&outputs/                    # Sample programs and expected outputs
-mapl/                              # MAPL virtual machine
+1
+0
+1
 ```
 
-## Compilation Pipeline
+## Language change
 
+| | Before | After |
+|---|---|---|
+| Range check (ascending) | ❌ `a < x && x < b` | ✅ `a << x << b` |
+| Range check (descending) | ❌ `a > x && x > b` | ✅ `a >> x >> b` |
+| Works with variables | ❌ Verbose | ✅ `a << 5 << b` |
+
+## Operator semantics
+
+| Operator | Meaning | Example | Result |
+|---|---|---|---|
+| `a << x << b` | `a < x && x < b` | `1 << 5 << 10` | true (1) |
+| `a >> x >> b` | `a > x && x > b` | `1 >> 5 >> 10` | false (0) |
+
+## MAPL output example
+
+Given:
 ```
-Source (.pmm)
-     │
-     ▼
-  Lexer/Parser (ANTLR4)
-     │
-     ▼
-  AST Construction
-     │
-     ▼
-  Identification (symbol table)
-     │
-     ▼
-  Type Checking
-     │
-     ▼
-  Code Generation
-     │
-     ▼
-  MAPL Assembly (.mapl)
-     │
-     ▼
-  MAPL Virtual Machine → Output
+if 1 << 5 << 10:
+    print '1';
+else:
+    print '0';
 ```
 
-## Requirements
+Generated assembly:
+```asm
+#line 8
+    ' * If else
+    pushi  1
+    pushi  5
+    lti
+    pushi  5
+    pushi  10
+    lti
+    and
+    jz     label0
 
-- Java 17+
-- ANTLR4 (included in `lib/`)
-- MAPL virtual machine (included in `mapl/`)
+#line 9
+    ' * Write
+    pushb  49
+    outb
+    jmp    label1
 
-## Running
-
-1. Compile the project in IntelliJ or with `javac`.
-2. Run the `Main` class passing the input source file and the output assembly file as arguments:
-
-```bash
-java Main <input.txt> <output.txt>
+ label0:
+#line 11
+    ' * Write
+    pushb  48
+    outb
+ label1:
 ```
 
-- `input.txt` — P-- source code
-- `output.txt` — generated MAPL assembly
+## Code generation structure
 
-If there are semantic or type errors, they will be printed to stderr and no output file will be generated.
+Both operators desugar entirely at parse time into existing AST nodes — no new AST classes, visitors, or type checking rules are needed. The grammar action directly builds a `Logical(Comparison, Comparison, "&&")` node:
 
-3. Run the generated assembly with the MAPL virtual machine:
-
-```bash
-java -jar mapl/mapl.jar output.txt
+```
+a << x << b  →  Logical(Comparison(a, x, "<"), Comparison(x, b, "<"), "&&")
+a >> x >> b  →  Logical(Comparison(a, x, ">"), Comparison(x, b, ">"), "&&")
 ```
 
-Or use the provided `MAPL.cmd` script on Windows.
+This means the generated MAPL is identical to what would be produced by writing `a < x && x < b` or `a > x && x > b` explicitly.
 
-## Target: MAPL Assembly
+---
 
-The compiler targets MAPL, a stack-based virtual machine. Key instructions:
+## Language specification
 
-| Instruction | Description |
-|---|---|
-| `push`, `pushi`, `pushf` | Push values onto the stack |
-| `loadi`, `storei` | Load/store integers |
-| `call`, `ret` | Function call/return |
-| `jmp`, `jz` | Unconditional/conditional jumps |
-| `outi`, `outf`, `outb` | Print int/double/char |
-| `enter` | Allocate local variable space |
+### 1. Abstract grammar
 
-## Example
+No new AST node is added. Both operators expand directly into existing nodes at parse time:
 
-Input program (`input.txt`):
 ```
-v:[10]double;
-
-# Main program
-def main()->None: {
-    value:double;
-    i,j:int;
-    w:[4][5]int;
-    date:struct { 
-       day, month, year:int;     
-    };
-    
-    input date.day; 
-    date.year = 'a'; 
-    date.month = date.day*date.year%12+1;
-    print date.day, '\n', date.month, '\n', (double)(date.year), '\n';
-    
-    input value;
-       
-    i=0;   
-    while i<10: {
-       v[i]=value;
-       print i,':',v[i], ' ';
-       if i%2:
-          print 'o','d','d','\n';
-       else:
-          print 'e','v','e','n','\n';
-       i=i+1;
-    }
-    print '\n';
-
-    i=0;
-    while i<4: {
-       j=0;
-       while j<5: {
-          w[i][j]=i+j;
-          print w[i][j], ' ';
-          j=j+1;
-       }
-       print '\n';
-       i=i+1;
-    }
-}
+a << x << b  ≡  Logical : expression -> Comparison(a, x, "<")  Comparison(x, b, "<")  "&&"
+a >> x >> b  ≡  Logical : expression -> Comparison(a, x, ">")  Comparison(x, b, ">")  "&&"
 ```
 
-Running the generated assembly on the MAPL VM:
+### 2. Semantic rules
+
+No new semantic rules are needed. The desugared `Logical` and `Comparison` nodes reuse existing rules:
+
 ```
->Integer value: 10
-10
-11
-97.0
-
->Float value: 20.0
-0:20.0 even
-1:20.0 odd
-2:20.0 even
-3:20.0 odd
-4:20.0 even
-5:20.0 odd
-6:20.0 even
-7:20.0 odd
-8:20.0 even
-9:20.0 odd
-
-0 1 2 3 4 
-1 2 3 4 5 
-2 3 4 5 6 
-3 4 5 6 7 
+expression1.type = expression2.type.logic(expression3.type)
+expression1.type = expression2.type.comparison(expression3.type)
 ```
 
-## License
+### 3. Grammar rule
 
-MIT
+```antlr
+| left=expression '<<' middle=expression '<<' right=expression
+    {$ast = new Logical(
+        $left.ast.getLine(), $left.ast.getColumn(),
+        new Comparison($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $middle.ast, "<"),
+        new Comparison($left.ast.getLine(), $left.ast.getColumn(), $middle.ast, $right.ast, "<"),
+        "&&");}
+
+| left2=expression '>>' middle2=expression '>>' right2=expression
+    {$ast = new Logical(
+        $left2.ast.getLine(), $left2.ast.getColumn(),
+        new Comparison($left2.ast.getLine(), $left2.ast.getColumn(), $left2.ast, $middle2.ast, ">"),
+        new Comparison($left2.ast.getLine(), $left2.ast.getColumn(), $middle2.ast, $right2.ast, ">"),
+        "&&");}
+```
