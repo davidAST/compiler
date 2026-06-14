@@ -156,6 +156,9 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
         }
 
         assignment.getRight().getType().mustPromoteTo(assignment.getLeft().getType(), assignment);
+
+        assignment.setType(assignment.getLeft().getType());
+        assignment.setLValue(false);
         return null;
     }
 

@@ -148,24 +148,6 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
     }
 
     @Override
-    public Void visit(Assignment assignment, FuncDefinition param) {
-        /*
-         * execute [[Assignment : statement -> expression1 expression2]]() =
-         *      address [[expression1]]
-         *      value [[expression2]]
-         *      expression.type.convertTo()
-         *      <store> statement.type.suffix
-         */
-        cg.line(assignment.getLine());
-        cg.comment("Assignment");
-        assignment.getLeft().accept(addressV, null);
-        assignment.getRight().accept(valueV, null);
-        assignment.getRight().getType().convertTo(cg, assignment.getLeft().getType());
-        cg.store(assignment.getLeft().getType().suffix());
-        return null;
-    }
-
-    @Override
     public Void visit(IfElse ifElse, FuncDefinition param) {
         /*
          * execute [[IfElse : statement -> expression statement2* statement3*]]() =
@@ -289,6 +271,19 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
         if (!(funcInvocation.getType() instanceof VoidType)) {
             cg.pop(funcInvocation.getType().suffix());
         }
+        return null;
+    }
+
+    @Override
+    public Void visit(ExpressionStatement expressionStatement, FuncDefinition param) {
+        /*
+         * execute[[ExpressionStatement: statement -> expression]]() =
+         *      value[[expression]]
+         *      <pop> expression.type.suffix()
+         */
+        cg.line(expressionStatement.getLine());
+        expressionStatement.getExpression().accept(valueV, null);
+        cg.pop(expressionStatement.getExpression().getType().suffix());
         return null;
     }
 }

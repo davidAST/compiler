@@ -1,9 +1,8 @@
-package ast.statements;
+package ast.expressions;
 
-import ast.expressions.Expression;
 import visitor.Visitor;
 
-public class Assignment extends AbstractStatement {
+public class Assignment extends AbstractExpression {
     // REPRESENTATION -> left = right
     // Example -> "a = 5", "puntos[0] = x + 1", "p.x = 10"
 

@@ -136,6 +136,8 @@ expression returns [Expression ast]
                 {$ast = new FunctionInvocation($ID.line, $ID.getCharPositionInLine()+1,
                 new Variable($ID.line, $ID.getCharPositionInLine()+1,$ID.text),
                 $expressions); }
+          | <assoc=right> left=expression '=' right=expression
+                {$ast = new Assignment($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast); }
           // Int Literal
           | INT=INT_CONSTANT
             {$ast = new IntLiteral($INT.line, $INT.getCharPositionInLine()+1, LexerHelper.lexemeToInt($INT.text)); }
@@ -166,8 +168,8 @@ statement returns [ List<Statement> ast = new ArrayList<>() ]
             {$ast.add(new Read($exp2.ast.getLine(), $exp2.ast.getColumn(), $exp2.ast)); }
             )* ';'
         // Assignment
-        | left=expression '=' right=expression ';'
-            {$ast.add(new Assignment($left.ast.getLine(), $left.ast.getColumn(), $left.ast, $right.ast)); }
+        | exp=expression ';'
+            {$ast.add(new ExpressionStatement($exp.ast.getLine(), $exp.ast.getColumn(), $exp.ast)); }
         // If - Else
         | 'if' exp=expression ':' b1=block 'else' ':'  b2=block
             {$ast.add(new IfElse($exp.ast.getLine(), $exp.ast.getColumn(), $b1.ast, $exp.ast, $b2.ast)); }

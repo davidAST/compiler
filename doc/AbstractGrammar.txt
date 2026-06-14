@@ -17,6 +17,7 @@ Expressions (Abstract Grammar)
     (08)    Logical:        expression1     -> expression2 (&& | ||) expression3
     (09)    FuncInvocation: expression1     -> expression2 expression*
     (10)    Modulus:        expression1     -> expression2 expression3
+    (15)    Assignment:     expression1     -> expression2 expression3
     (11)    Int:            expression1     -> INT_CONSTANT
     (12)    Real:           expression1     -> REAL_CONSTANT
     (13)    Char:           expression1     -> CHAR_CONSTANT
@@ -25,7 +26,7 @@ Expressions (Abstract Grammar)
 Statements (Abstract Grammar)
     (01)    Print:          statement       -> expression
     (02)    Read:           statement       -> expression
-    (03)    Assignment:     statement       -> expression1 expression2
+    (03)    ExpressionStatement: statement -> expression
     (04)    IfElse:         statement       -> expression statement2* statement3*
     (05)    While:          statement       -> expression statement*
     (06)    Return:         statement       -> expression

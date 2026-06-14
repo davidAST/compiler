@@ -106,6 +106,7 @@ public abstract class AbstractCGVisitor<TP, TR> implements Visitor<TP, TR> {
         return null;
     }
 
+
     // Expressions (Literals) ===============================================================
 
     @Override
@@ -167,6 +168,12 @@ public abstract class AbstractCGVisitor<TP, TR> implements Visitor<TP, TR> {
     @Override
     public TR visit(While whileStatement, TP parameter) {
         throwException("While");
+        return null;
+    }
+
+    @Override
+    public TR visit(ExpressionStatement expressionStatement, TP parameter) {
+        throwException("ExpressionStatement");
         return null;
     }
 

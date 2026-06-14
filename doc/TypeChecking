@@ -14,6 +14,8 @@ Expressions (Semantic Rules)
     (08)    expression1.type = expression2.type.logic(expression3.type)
     (09)    expression1.type = expression2.type.parenthesis(expression*.map(e->e.type))
     (10)    expression1.type = expression2.type.modulus(expression3.type)
+    (15)    expression3.type.mustPromoteTo(expression2.type)
+            expression1.type = expression2.type
     (11)    expression1.type = IntType
     (12)    expression1.type = RealType
     (13)    expression1.type = CharType

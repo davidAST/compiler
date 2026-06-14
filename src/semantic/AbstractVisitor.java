@@ -188,6 +188,12 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
         return null;
     }
 
+    @Override
+    public TR visit(ExpressionStatement expressionStatement, TP parameter) {
+        expressionStatement.getExpression().accept(this, parameter);
+        return null;
+    }
+
     // Types ===============================================================
 
     @Override

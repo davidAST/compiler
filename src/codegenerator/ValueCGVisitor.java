@@ -1,6 +1,7 @@
 package codegenerator;
 import ast.expressions.*;
 import ast.expressions.literals.*;
+import ast.expressions.Assignment;
 import ast.statements.FunctionInvocation;
 import ast.types.FunctionType;
 
@@ -253,6 +254,24 @@ public class ValueCGVisitor extends AbstractCGVisitor<Void, Void> {
         cg.convert(modulus.getRight().getType(), modulus.getType());
 
         cg.mod();
+        return null;
+    }
+
+    @Override
+    public Void visit(Assignment assignment, Void param) {
+        /*
+         * value[[Assignment: expression1 -> expression2 expression3]]() =
+         *      address[[expression2]]
+         *      value[[expression3]]
+         *      cg.convert(expression3.type, expression2.type)
+         *      <store> expression2.suffix()
+         *      value[[expression2]]
+         */
+        assignment.getLeft().accept(addressVisitor, param);
+        assignment.getRight().accept(this, param);
+        cg.convert(assignment.getRight().getType(), assignment.getLeft().getType());
+        cg.store(assignment.getLeft().getType().suffix());
+        assignment.getLeft().accept(this, param);
         return null;
     }
 
