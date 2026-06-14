@@ -20,6 +20,7 @@ Each branch extends the base compiler with a new language feature. Some examples
 | `feature/forEach` | `each` statement (forEach loop over arrays) |
 | `feature/contains` | `array.contains(element)` expression |
 | `feature/range-comparator` | `<<` and `>>` range comparator operators |
+| `feature/assignment-expression` | Assignment as an expression: `a = b = c = 1` |
 
 Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
 
