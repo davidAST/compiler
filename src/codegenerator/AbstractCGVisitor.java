@@ -225,4 +225,10 @@ public abstract class AbstractCGVisitor<TP, TR> implements Visitor<TP, TR> {
         throwException("Record Field");
         return null;
     }
+
+    @Override
+    public TR visit(VarType varType, TP parameter) {
+        throwException("Var Type");
+        return null;
+    }
 }

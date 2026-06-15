@@ -5,7 +5,7 @@ import ast.types.Type;
 
 public abstract class AbstractDefinition extends AbstractLocatable implements Definition {
 
-    private final Type type;
+    private Type type;
     private final String name;
     private int scope;
 
@@ -18,6 +18,8 @@ public abstract class AbstractDefinition extends AbstractLocatable implements De
     public Type getType() {
         return type;
     }
+
+    public void setType(Type type) { this.type = type; }
 
     public String getName() {
         return name;

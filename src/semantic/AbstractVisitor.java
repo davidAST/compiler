@@ -243,4 +243,9 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
         recordField.getType().accept(this, parameter);
         return null;
     }
+
+    @Override
+    public TR visit(VarType varType, TP parameter) {
+        return null;
+    }
 }

@@ -195,8 +195,11 @@ block returns [List<Statement> ast = new ArrayList<>()]
 
 type returns [Type ast]
     locals [ List<RecordField> records = new ArrayList<>() ]
+    // Var
+    : 'var'
+      {$ast = VarType.getInstance(); }
     // Char
-    : 'char'
+    | 'char'
       {$ast = CharType.getInstance(); }
     // Int
     | 'int'

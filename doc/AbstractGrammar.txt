@@ -39,3 +39,4 @@ Types (Abstract Grammar)
     (05)    StructType:     type1:          -> recordField+
     (06)    RecordField:    astNode:        -> ID type
     (07)    FunctionType:   type1:          -> type2 definition*
+    (08)    VarType         type            ->

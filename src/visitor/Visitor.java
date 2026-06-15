@@ -51,6 +51,7 @@ public interface Visitor<TP, TR> {
     public TR visit(RealType realType, TP parameter);
     public TR visit(StructType structType, TP parameter);
     public TR visit(VoidType voidType, TP parameter);
+    public TR visit(VarType varType, TP parameter);
 
     // Record Field
     public TR visit (RecordField recordField, TP parameter);

@@ -1,0 +1,10 @@
+def main()->None: {
+    a, b, c: var;
+    a = 0;
+    b = 'a';
+    c = 3.2;
+
+    print a, '\n';
+    print b, '\n';
+    print c, '\n';
+}

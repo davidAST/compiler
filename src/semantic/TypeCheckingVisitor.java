@@ -151,6 +151,11 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
         assignment.getLeft().accept(this, parameter);
         assignment.getRight().accept(this, parameter);
 
+        if (assignment.getLeft().getType() instanceof VarType) {
+            ((Variable) assignment.getLeft()).getVarDef().setType(assignment.getRight().getType());
+            assignment.getLeft().accept(this, parameter);
+        }
+
         if (!assignment.getLeft().getLValue()) {
             new ErrorType("The left part of the assignment is not modifiable", assignment.getLeft());
         }
