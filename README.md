@@ -1,220 +1,145 @@
-# P-- Compiler
+# P-- Compiler — `feature/infer-variables` branch
+> Extends the base compiler with support for **type inference via `var`**, allowing variables to be declared without an explicit type that is then inferred from the first assignment.
 
-## Branches
+## What this branch adds
 
-Each branch extends the base compiler with a new language feature. Some examples:
+P-- now supports the `var` keyword as a type placeholder. Variables declared with `var` have their type inferred automatically from the first assignment to that variable.
 
-| Branch | Feature |
-|---|---|
-| `master` | Base compiler |
-| `feature/increment` | `++` and `--` operators |
-| `feature/multiple-assignment` | Multiple assignment: `a, b, c = 1, 'a', 2.3` |
-| `feature/var-init` | Variable declarations anywhere in a function body (not inside `while`/`if`) |
-| `feature/void-return` | `return;` to exit a void function early |
-| `feature/for-loop` | `for` loop statement |
-| `feature/xor` | `^` (XOR) operator |
-| `feature/switch` | `switch` statement |
-| `feature/ternary` | `? :` ternary conditional operator |
-| `feature/compound-assignment` | `+=`, `-=`, `*=`, `/=` compound assignment operators |
-| `feature/do-while` | `do-while` loop statement |
-| `feature/forEach` | `each` statement (forEach loop over arrays) |
-| `feature/contains` | `array.contains(element)` expression |
-| `feature/range-comparator` | `<<` and `>>` range comparator operators |
-
-Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
-
-A compiler for **P--** (Python minus minus), a statically-typed imperative language inspired by Python but designed for educational purposes. Built in Java using ANTLR4, it compiles P-- source code into MAPL assembly, which runs on the MAPL virtual machine.
-
-## Language Overview
-
-P-- supports:
-- Primitive types: `int`, `double`, `char`
-- Composite types: arrays, structs
-- Control flow: `if/else`, `while`
-- Functions with parameters and return values
-- Type casting and arithmetic/logical expressions
-- `print` and `input` statements
-
-Example P-- program:
 ```
 def main()->None: {
-    i: int;
-    i = 0;
-    while i < 10: {
-        print i, '\n';
-        i = i + 1;
-    }
+    a, b, c: var;
+    a = 0;
+    b = 'a';
+    c = 3.2;
+    print a, '\n';
+    print b, '\n';
+    print c, '\n';
 }
 ```
 
-## Project Structure
-
+Expected output:
 ```
-src/
-├── ast/
-│   ├── definitions/       # VarDefinition, FuncDefinition
-│   ├── expressions/       # Arithmetic, logical, access expressions
-│   ├── statements/        # Assignment, Print, Read, If, While, Return...
-│   └── types/             # IntType, CharType, RealType, ArrayType, StructType...
-├── codegenerator/
-│   ├── CodeGenerator.java         # Low-level MAPL instruction emitter
-│   ├── ExecuteCGVisitor.java      # Code generation for statements/definitions
-│   ├── ValueCGVisitor.java        # Code generation for expressions (by value)
-│   └── AddressCGVisitor.java      # Code generation for expressions (by address)
-├── semantic/
-│   ├── IdentificationVisitor.java # Symbol resolution
-│   └── TypeCheckingVisitor.java   # Type checking and inference
-├── parser/
-│   ├── Pmm.g4                     # ANTLR4 grammar
-│   └── ...                        # Generated lexer/parser
-└── symboltable/
-    └── SymbolTable.java
-test/
-inputs&outputs/                    # Sample programs and expected outputs
-mapl/                              # MAPL virtual machine
+0
+a
+3.2
 ```
 
-## Compilation Pipeline
+## Language change
 
-```
-Source (.pmm)
-     │
-     ▼
-  Lexer/Parser (ANTLR4)
-     │
-     ▼
-  AST Construction
-     │
-     ▼
-  Identification (symbol table)
-     │
-     ▼
-  Type Checking
-     │
-     ▼
-  Code Generation
-     │
-     ▼
-  MAPL Assembly (.mapl)
-     │
-     ▼
-  MAPL Virtual Machine → Output
-```
+| | Before | After |
+|---|---|---|
+| Variable declaration | ❌ Explicit type required: `a: int;` | ✅ Type can be inferred: `a: var;` |
+| Type inference | ❌ Not supported | ✅ Type inferred from first assignment |
+| Mixed types | ❌ One declaration per type | ✅ `a, b, c: var;` with different types |
 
-## Requirements
+## Type rules
 
-- Java 17+
-- ANTLR4 (included in `lib/`)
-- MAPL virtual machine (included in `mapl/`)
-
-## Running
-
-1. Compile the project in IntelliJ or with `javac`.
-2. Run the `Main` class passing the input source file and the output assembly file as arguments:
-
-```bash
-java Main <input.txt> <output.txt>
-```
-
-- `input.txt` — P-- source code
-- `output.txt` — generated MAPL assembly
-
-If there are semantic or type errors, they will be printed to stderr and no output file will be generated.
-
-3. Run the generated assembly with the MAPL virtual machine:
-
-```bash
-java -jar mapl/mapl.jar output.txt
-```
-
-Or use the provided `MAPL.cmd` script on Windows.
-
-## Target: MAPL Assembly
-
-The compiler targets MAPL, a stack-based virtual machine. Key instructions:
-
-| Instruction | Description |
+| Constraint | Example violation |
 |---|---|
-| `push`, `pushi`, `pushf` | Push values onto the stack |
-| `loadi`, `storei` | Load/store integers |
-| `call`, `ret` | Function call/return |
-| `jmp`, `jz` | Unconditional/conditional jumps |
-| `outi`, `outf`, `outb` | Print int/double/char |
-| `enter` | Allocate local variable space |
+| A `var` variable must be assigned before use | `a: var; print a;` → error (type still `VarType`) |
+| The inferred type is the type of the right-hand side of the first assignment | `a: var; a = 0;` → `a` becomes `int` |
 
-## Example
+## MAPL output example
 
-Input program (`input.txt`):
+Given:
 ```
-v:[10]double;
-
-# Main program
 def main()->None: {
-    value:double;
-    i,j:int;
-    w:[4][5]int;
-    date:struct { 
-       day, month, year:int;     
-    };
-    
-    input date.day; 
-    date.year = 'a'; 
-    date.month = date.day*date.year%12+1;
-    print date.day, '\n', date.month, '\n', (double)(date.year), '\n';
-    
-    input value;
-       
-    i=0;   
-    while i<10: {
-       v[i]=value;
-       print i,':',v[i], ' ';
-       if i%2:
-          print 'o','d','d','\n';
-       else:
-          print 'e','v','e','n','\n';
-       i=i+1;
-    }
-    print '\n';
-
-    i=0;
-    while i<4: {
-       j=0;
-       while j<5: {
-          w[i][j]=i+j;
-          print w[i][j], ' ';
-          j=j+1;
-       }
-       print '\n';
-       i=i+1;
-    }
+    a, b, c: var;
+    a = 0;
+    b = 'a';
+    c = 3.2;
+    ...
 }
 ```
 
-Running the generated assembly on the MAPL VM:
+Generated assembly:
+```asm
+#source "var-in.txt"
+' Invocation to the main function
+call main
+halt
+
+#line 1
+ main:
+    ' * Parameters
+    ' * Local variables
+    ' * IntType a (offset -2)
+    ' * CharType b (offset -3)
+    ' * RealType c (offset -7)
+    enter  7
+
+#line 3
+    ' * Assignment
+    push   bp
+    pushi  -2
+    addi
+    pushi  0
+    storei
+
+#line 4
+    ' * Assignment
+    push   bp
+    pushi  -3
+    addi
+    pushb  97
+    storeb
+
+#line 5
+    ' * Assignment
+    push   bp
+    pushi  -7
+    addi
+    pushf  3.2
+    storef
+    ...
+    ret    0, 7, 0
 ```
->Integer value: 10
-10
-11
-97.0
 
->Float value: 20.0
-0:20.0 even
-1:20.0 odd
-2:20.0 even
-3:20.0 odd
-4:20.0 even
-5:20.0 odd
-6:20.0 even
-7:20.0 odd
-8:20.0 even
-9:20.0 odd
+Note that the generated assembly is identical to what would be produced with explicit types — `var` is resolved entirely at compile time during type checking, leaving no trace in the output.
 
-0 1 2 3 4 
-1 2 3 4 5 
-2 3 4 5 6 
-3 4 5 6 7 
+---
+
+## Language specification
+
+### 1. Abstract grammar
+
+A new type is added:
+
+```
+Types (Abstract Grammar)
+    (08)  VarType : type ->
 ```
 
-## License
+`VarType` is a singleton with no attributes, representing "type not yet inferred".
 
-MIT
+### 2. Semantic rules (attribute grammar)
+
+The following rule is added to the Assignment statement:
+
+```
+Statements (Semantic Rules)
+    (03)  if (expression1.type == VarType)
+              expression1.definition.type = expression2.type
+          expression2.type.mustPromoteTo(expression1.type)
+```
+
+When the left-hand side has type `VarType`, its `VarDefinition` is updated with the inferred type before the promotion check is performed.
+
+### 3. Grammar rule
+
+`var` is added as a new keyword in the `type` rule:
+
+```antlr
+type returns [Type ast]
+    : 'var'  {$ast = VarType.getInstance();}
+    | 'char' {$ast = CharType.getInstance();}
+    | 'int'  {$ast = IntType.getInstance();}
+    ...
+```
+
+### 4. Implementation notes
+
+- `VarType` is a singleton that extends `AbstractType`. All type operations inherited from `AbstractType` return `ErrorType`, since `VarType` has no valid operations until it is resolved.
+- `numberOfBytes()` throws `IllegalStateException` since the size is unknown until the type is inferred.
+- The inference happens in `TypeCheckingVisitor.visit(Assignment)`: when the left side has `VarType`, the `VarDefinition.setType()` is called with the right-hand side type, and the left side is re-visited so its cached type is updated.
+- The offset calculation works correctly because all `var` variables are declared at the top of the function body, and their sizes are resolved during type checking before code generation runs.
