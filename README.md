@@ -21,6 +21,7 @@ Each branch extends the base compiler with a new language feature. Some examples
 | `feature/contains` | `array.contains(element)` expression |
 | `feature/range-comparator` | `<<` and `>>` range comparator operators |
 | `feature/assignment-expression` | Assignment as an expression: `a = b = c = 1` |
+| `feature/infer-variables` | Type inference via `var`: `a: var;` |
 
 Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
 
