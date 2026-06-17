@@ -25,6 +25,9 @@ Types (Semantic Rule)
     (07)    int fieldBytesSum = 0;
             for (int count = ft.getParams().size(); count >= 0; count--) {
                 VarDefinition varDef = ft.getParams().get(count);
-                fieldBytesSum += varDef.getType().numberOfBytes();
+                if (!varDef.isReference())
+                    fieldBytesSum += varDef.getType().numberOfBytes();
+                else
+                    fieldBytesSum += 2;
                 varDef.setOffset(-fieldBytesSum);
             }
