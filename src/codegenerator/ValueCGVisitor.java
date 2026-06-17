@@ -228,8 +228,12 @@ public class ValueCGVisitor extends AbstractCGVisitor<Void, Void> {
         List<Expression> arguments = funcInvocation.getArguments();
         FunctionType fType = (FunctionType) funcInvocation.getVariable().getType();
         for (int i = 0; i < arguments.size(); i++) {
-            arguments.get(i).accept(this, param);
-            cg.convert(arguments.get(i).getType(), fType.getParams().get(i).getType());
+            if (!fType.getParams().get(i).isReference()) {
+                arguments.get(i).accept(this, param);
+                cg.convert(arguments.get(i).getType(), fType.getParams().get(i).getType());
+            } else {
+                arguments.get(i).accept(addressVisitor, param);
+            }
         }
         cg.call(funcInvocation.getVariable().getName());
         return null;

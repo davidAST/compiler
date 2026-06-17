@@ -29,7 +29,7 @@ variables returns [List<VarDefinition> ast = new ArrayList<>()]
         (',' ID2=ID {$vars.add($ID2.text); })* ':' type
         {
             for (String str: $vars) {
-                $ast.add(new VarDefinition($ID1.line, $ID1.getCharPositionInLine() + 1, str, $type.ast));
+                $ast.add(new VarDefinition($ID1.line, $ID1.getCharPositionInLine() + 1, str, $type.ast, false));
             }
         }
         ;
@@ -48,7 +48,8 @@ varDefinition returns [List<VarDefinition> ast = new ArrayList<>()]
                     t.getLine(),
                     t.getCharPositionInLine() + 1,
                     name,
-                    $type.ast
+                    $type.ast,
+                    false
                 );
 
                 if (!seenNames.add(name)) {
@@ -62,9 +63,16 @@ varDefinition returns [List<VarDefinition> ast = new ArrayList<>()]
     ;
 
 params  returns [List<VarDefinition> ast = new ArrayList<>()]:
-      (var1=variables {$ast.addAll($var1.ast);}
-      (',' var2=variables {$ast.addAll($var2.ast); })*)?
+      (var1=variableParam {$ast.addAll($var1.ast);}
+      (',' var2=variableParam {$ast.addAll($var2.ast); })*)?
       ;
+
+variableParam returns [List<VarDefinition> ast = new ArrayList<>()]
+        :  ID1=ID  ':' type
+        {   $ast.add(new VarDefinition($ID1.line, $ID1.getCharPositionInLine() + 1, $ID1.text, $type.ast, false)); }
+        |  ID1=ID '&' ':' type
+        {   $ast.add(new VarDefinition($ID1.line, $ID1.getCharPositionInLine() + 1, $ID1.text, $type.ast, true)); }
+        ;
 
 functionDefinition returns [Definition ast]
     locals [List<VarDefinition> definitions = new ArrayList<>(),

@@ -1,0 +1,69 @@
+
+#source	"ref-in.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line	1
+
+ f:
+	' * Parameters
+	' * IntType r (offset 4)
+	' * Local variables
+	enter	0
+
+#line	2
+	' * Assignment
+	push	bp
+	pushi	4
+	addi
+	loadi
+	pushi	3
+	storei
+
+#line	3
+	' * Return
+	pushi	0
+	ret	2, 0, 2
+
+#line	7
+
+ main:
+	' * Parameters
+	' * Local variables
+	' * IntType r (offset -2)
+	enter	2
+
+#line	9
+	' * Assignment
+	push	bp
+	pushi	-2
+	addi
+	pushi	5
+	storei
+
+#line	10
+	' * Write
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	outi
+
+#line	11
+	push	bp
+	pushi	-2
+	addi
+call f
+	popi
+
+#line	12
+	' * Write
+	push	bp
+	pushi	-2
+	addi
+	loadi
+	outi
+	ret	0, 2, 0

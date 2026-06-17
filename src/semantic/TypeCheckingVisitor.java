@@ -185,6 +185,20 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
                 functionInvocation.getArguments().stream().map(Expression::getType).toList(),
                 functionInvocation);
 
+        FunctionType ft = (FunctionType) functionInvocation.getVariable().getType();
+
+        for(int i = 0; i < functionInvocation.getArguments().size(); i++) {
+            VarDefinition varDef = ft.getParams().get(i);
+            Expression exp = functionInvocation.getArguments().get(i);
+            if (varDef.isReference()) {
+                if (!exp.getLValue())
+                    new ErrorType("Must be Lvalue", functionInvocation);
+                if (exp.getType() != varDef.getType()) {
+                    new ErrorType("Types are not the same", functionInvocation);
+                }
+            }
+        }
+
         functionInvocation.setType(result);
         return null;
     }

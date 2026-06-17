@@ -42,6 +42,10 @@ public class AddressCGVisitor extends AbstractCGVisitor<Void, Void> {
             cg.add('i');
         }
 
+        if (((VarDefinition) variable.getVarDef()).isReference()) {
+            cg.load(variable.getType().suffix());
+        }
+
         return null;
     }
 

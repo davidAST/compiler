@@ -6,9 +6,15 @@ import visitor.Visitor;
 public class VarDefinition extends AbstractDefinition {
 
     private int offset;
+    private boolean reference;
 
-    public VarDefinition(int line, int column, String name, Type type) {
+    public VarDefinition(int line, int column, String name, Type type, boolean reference) {
         super(line, column, name, type);
+        this.reference = reference;
+    }
+
+    public boolean isReference() {
+        return reference;
     }
 
     @Override

@@ -28,7 +28,10 @@ public class OffSetVisitor extends AbstractVisitor<Void, Void> {
         for (int count = ft.getParams().size() - 1; count >= 0; count--) {
             VarDefinition varDef = ft.getParams().get(count);
             varDef.setOffset(fieldBytesSum);
-            fieldBytesSum += varDef.getType().numberOfBytes();
+            if (!varDef.isReference())
+                fieldBytesSum += varDef.getType().numberOfBytes();
+            else
+                fieldBytesSum += 2;
         }
         ft.setParamsSize(fieldBytesSum - 4);
         return null;

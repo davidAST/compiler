@@ -65,7 +65,7 @@ public class IdentificationVisitor extends AbstractVisitor<Void, Void> {
                     "The variable " + variable.getName() + " is not defined yet",
                     variable
             );
-            def = new VarDefinition(0,0, variable.getName(),et );
+            def = new VarDefinition(0,0, variable.getName(),et, false);
         }
 
         // 2. Set the definition in the variable

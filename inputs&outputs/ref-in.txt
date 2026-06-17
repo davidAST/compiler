@@ -1,0 +1,14 @@
+def f(r & :int)->int: {
+	r = 3;
+	return 0;
+}
+
+# Main program
+def main()->None: {
+	r: int;
+	r = 5;
+	print r;
+	f(r);
+	print r;
+}
+
