@@ -220,8 +220,11 @@ public class ValueCGVisitor extends AbstractCGVisitor<Void, Void> {
         /*
          * value[[FuncInvocation: expression1 -> expression2 expression*]]() =
          *      for (int i = 0; i < expression*.size; i++) {
-         *          value[[expression*[i]]]()
-         *          cg.convert(expression*[i].type, expression2.type.params[i].type)
+         *          if (!expression1*[i].type.isReference())
+             *          value[[expression*[i]]]()
+             *          cg.convert(expression*[i].type, expression2.type.params[i].type)
+         *          else
+         *              address[[expression*[i]]]()
          *      }
          *      <call> expression2.name
          */

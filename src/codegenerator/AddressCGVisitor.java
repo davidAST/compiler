@@ -30,6 +30,8 @@ public class AddressCGVisitor extends AbstractCGVisitor<Void, Void> {
          *          <pusha bp>
          *          <pushi> expression.definition.offset
          *          <addi>
+         *      if (expression.definition.isReference)
+         *          <load> expression.type.suffix
          */
 
         VarDefinition varDef = (VarDefinition) variable.getVarDef();
