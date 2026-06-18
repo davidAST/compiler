@@ -1,220 +1,216 @@
-# P-- Compiler
+# P-- Compiler — `feature/pass-by-reference` branch
+> Extends the base compiler with support for **pass-by-reference parameters**, allowing functions to modify the caller's variables.
 
-## Branches
+## What this branch adds
 
-Each branch extends the base compiler with a new language feature. Some examples:
+P-- now supports declaring function parameters as references using the `&` symbol. Reference parameters receive the address of the caller's variable instead of a copy of its value, so modifications inside the function are visible to the caller after the call returns.
 
-| Branch | Feature |
-|---|---|
-| `master` | Base compiler |
-| `feature/increment` | `++` and `--` operators |
-| `feature/multiple-assignment` | Multiple assignment: `a, b, c = 1, 'a', 2.3` |
-| `feature/var-init` | Variable declarations anywhere in a function body (not inside `while`/`if`) |
-| `feature/void-return` | `return;` to exit a void function early |
-| `feature/for-loop` | `for` loop statement |
-| `feature/xor` | `^` (XOR) operator |
-| `feature/switch` | `switch` statement |
-| `feature/ternary` | `? :` ternary conditional operator |
-| `feature/compound-assignment` | `+=`, `-=`, `*=`, `/=` compound assignment operators |
-| `feature/do-while` | `do-while` loop statement |
-| `feature/forEach` | `each` statement (forEach loop over arrays) |
-| `feature/contains` | `array.contains(element)` expression |
-| `feature/range-comparator` | `<<` and `>>` range comparator operators |
-
-Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
-
-A compiler for **P--** (Python minus minus), a statically-typed imperative language inspired by Python but designed for educational purposes. Built in Java using ANTLR4, it compiles P-- source code into MAPL assembly, which runs on the MAPL virtual machine.
-
-## Language Overview
-
-P-- supports:
-- Primitive types: `int`, `double`, `char`
-- Composite types: arrays, structs
-- Control flow: `if/else`, `while`
-- Functions with parameters and return values
-- Type casting and arithmetic/logical expressions
-- `print` and `input` statements
-
-Example P-- program:
 ```
+def f(r & :int)->int: {
+    r = 3;
+    return 0;
+}
+
 def main()->None: {
-    i: int;
-    i = 0;
-    while i < 10: {
-        print i, '\n';
-        i = i + 1;
-    }
+    r: int;
+    r = 5;
+    print r;
+    f(r);
+    print r;
 }
 ```
 
-## Project Structure
-
+Expected output:
 ```
-src/
-├── ast/
-│   ├── definitions/       # VarDefinition, FuncDefinition
-│   ├── expressions/       # Arithmetic, logical, access expressions
-│   ├── statements/        # Assignment, Print, Read, If, While, Return...
-│   └── types/             # IntType, CharType, RealType, ArrayType, StructType...
-├── codegenerator/
-│   ├── CodeGenerator.java         # Low-level MAPL instruction emitter
-│   ├── ExecuteCGVisitor.java      # Code generation for statements/definitions
-│   ├── ValueCGVisitor.java        # Code generation for expressions (by value)
-│   └── AddressCGVisitor.java      # Code generation for expressions (by address)
-├── semantic/
-│   ├── IdentificationVisitor.java # Symbol resolution
-│   └── TypeCheckingVisitor.java   # Type checking and inference
-├── parser/
-│   ├── Pmm.g4                     # ANTLR4 grammar
-│   └── ...                        # Generated lexer/parser
-└── symboltable/
-    └── SymbolTable.java
-test/
-inputs&outputs/                    # Sample programs and expected outputs
-mapl/                              # MAPL virtual machine
+5
+3
 ```
 
-## Compilation Pipeline
+## Language change
 
-```
-Source (.pmm)
-     │
-     ▼
-  Lexer/Parser (ANTLR4)
-     │
-     ▼
-  AST Construction
-     │
-     ▼
-  Identification (symbol table)
-     │
-     ▼
-  Type Checking
-     │
-     ▼
-  Code Generation
-     │
-     ▼
-  MAPL Assembly (.mapl)
-     │
-     ▼
-  MAPL Virtual Machine → Output
-```
+| | Before | After |
+|---|---|---|
+| Parameter passing | ❌ Always by value | ✅ `&` marks a parameter as by reference |
+| Argument requirements | ❌ Any expression | ✅ Reference arguments must be an LValue |
+| Modifying caller state | ❌ Not possible through parameters | ✅ Reference parameters propagate changes back to the caller |
 
-## Requirements
+## Type rules
 
-- Java 17+
-- ANTLR4 (included in `lib/`)
-- MAPL virtual machine (included in `mapl/`)
-
-## Running
-
-1. Compile the project in IntelliJ or with `javac`.
-2. Run the `Main` class passing the input source file and the output assembly file as arguments:
-
-```bash
-java Main <input.txt> <output.txt>
-```
-
-- `input.txt` — P-- source code
-- `output.txt` — generated MAPL assembly
-
-If there are semantic or type errors, they will be printed to stderr and no output file will be generated.
-
-3. Run the generated assembly with the MAPL virtual machine:
-
-```bash
-java -jar mapl/mapl.jar output.txt
-```
-
-Or use the provided `MAPL.cmd` script on Windows.
-
-## Target: MAPL Assembly
-
-The compiler targets MAPL, a stack-based virtual machine. Key instructions:
-
-| Instruction | Description |
+| Constraint | Example violation |
 |---|---|
-| `push`, `pushi`, `pushf` | Push values onto the stack |
-| `loadi`, `storei` | Load/store integers |
-| `call`, `ret` | Function call/return |
-| `jmp`, `jz` | Unconditional/conditional jumps |
-| `outi`, `outf`, `outb` | Print int/double/char |
-| `enter` | Allocate local variable space |
+| The argument passed to a reference parameter must be an LValue | `f(5)` where `f(r &: int)` → error |
+| The argument type must match the reference parameter's type exactly | `f(c)` where `c: char` and `f(r &: int)` → error |
 
-## Example
+## MAPL output example
 
-Input program (`input.txt`):
+Given:
 ```
-v:[10]double;
-
-# Main program
+def f(r & :int)->int: {
+    r = 3;
+    return 0;
+}
 def main()->None: {
-    value:double;
-    i,j:int;
-    w:[4][5]int;
-    date:struct { 
-       day, month, year:int;     
-    };
-    
-    input date.day; 
-    date.year = 'a'; 
-    date.month = date.day*date.year%12+1;
-    print date.day, '\n', date.month, '\n', (double)(date.year), '\n';
-    
-    input value;
-       
-    i=0;   
-    while i<10: {
-       v[i]=value;
-       print i,':',v[i], ' ';
-       if i%2:
-          print 'o','d','d','\n';
-       else:
-          print 'e','v','e','n','\n';
-       i=i+1;
-    }
-    print '\n';
-
-    i=0;
-    while i<4: {
-       j=0;
-       while j<5: {
-          w[i][j]=i+j;
-          print w[i][j], ' ';
-          j=j+1;
-       }
-       print '\n';
-       i=i+1;
-    }
+    r: int;
+    r = 5;
+    print r;
+    f(r);
+    print r;
 }
 ```
 
-Running the generated assembly on the MAPL VM:
+Generated assembly:
+```asm
+#source "ref-in.txt"
+' Invocation to the main function
+call main
+halt
+
+#line 1
+ f:
+    ' * Parameters
+    ' * IntType r (offset 4)
+    ' * Local variables
+    enter  0
+
+#line 2
+    ' * Assignment
+    push   bp
+    pushi  4
+    addi
+    loadi
+    pushi  3
+    storei
+
+#line 3
+    ' * Return
+    pushi  0
+    ret    2, 0, 2
+
+#line 7
+ main:
+    ' * Parameters
+    ' * Local variables
+    ' * IntType r (offset -2)
+    enter  2
+
+#line 9
+    ' * Assignment
+    push   bp
+    pushi  -2
+    addi
+    pushi  5
+    storei
+
+#line 10
+    ' * Write
+    push   bp
+    pushi  -2
+    addi
+    loadi
+    outi
+
+#line 11
+    push   bp
+    pushi  -2
+    addi
+call f
+    popi
+
+#line 12
+    ' * Write
+    push   bp
+    pushi  -2
+    addi
+    loadi
+    outi
+    ret    0, 2, 0
 ```
->Integer value: 10
-10
-11
-97.0
 
->Float value: 20.0
-0:20.0 even
-1:20.0 odd
-2:20.0 even
-3:20.0 odd
-4:20.0 even
-5:20.0 odd
-6:20.0 even
-7:20.0 odd
-8:20.0 even
-9:20.0 odd
+Note that calling `f(r)` pushes the *address* of `r` (computed with `push bp; pushi -2; addi`) rather than its value, and inside `f` the parameter `r` is always loaded through an extra indirection (`loadi`) before use, since its offset holds an address rather than a value.
 
-0 1 2 3 4 
-1 2 3 4 5 
-2 3 4 5 6 
-3 4 5 6 7 
+## Code generation structure
+
+Reference parameters are always allocated 2 bytes (the size of an address) regardless of their declared type's actual size, since only the address is stored in the activation record.
+
+**Calling a function with a reference argument:**
+```
+value[[ FuncInvocation: expression1 -> expression2 expression* ]]() =
+    for (int i = 0; i < expression*.size; i++) {
+        if (!expression2.type.params[i].isReference())
+            value[[expression*[i]]]
+            cg.convert(expression*[i].type, expression2.type.params[i].type)
+        else
+            address[[expression*[i]]]
+    }
+    <call> expression2.name
 ```
 
-## License
+**Accessing a reference variable inside the function:**
+```
+address[[ Variable: expression -> ID ]]() =
+    <push> bp
+    <pushi> expression.definition.offset
+    <addi>
+    if (expression.definition.isReference)
+        <load> expression.type.suffix()
+```
 
-MIT
+The first three instructions compute the slot holding the address (not the value); the conditional `load` then dereferences it to obtain the actual address of the caller's variable, which subsequent `load`/`store` operations use as usual.
+
+---
+
+## Language specification
+
+### 1. Abstract grammar
+
+`VarDefinition` gains a new attribute marking whether the parameter is passed by reference:
+
+```
+Definitions (Abstract Grammar)
+    (02) VarDefinition: definition -> ID type [reference]
+```
+
+### 2. Semantic rules
+
+A new check is added when type-checking a function invocation, for each argument matched against a reference parameter:
+
+```
+Expressions (Semantic Rules)
+    (09)    expression1.type = expression2.type.parenthesis(expression*.map(e->e.type))
+            expression*.forEach((exp, i) -> {
+                if (expression2.type.params[i].isReference) {
+                    exp.lvalue.mustBeTrue()
+                    exp.type.mustEqual(expression2.type.params[i].type)
+                }
+            })
+```
+
+### 3. Offset calculation
+
+Reference parameters always occupy 2 bytes in the activation record (the size of an address), instead of their declared type's size:
+
+```
+Types (Semantic Rule)
+    (07)    int fieldBytesSum = 0;
+            for (int count = ft.getParams().size(); count >= 0; count--) {
+                VarDefinition varDef = ft.getParams().get(count);
+                if (!varDef.isReference())
+                    fieldBytesSum += varDef.getType().numberOfBytes();
+                else
+                    fieldBytesSum += 2;
+                varDef.setOffset(-fieldBytesSum);
+            }
+```
+
+### 4. Grammar rule
+
+A new `variableParam` rule replaces `variables` inside `params`, allowing each parameter to optionally be marked with `&`:
+
+```antlr
+variableParam returns [List<VarDefinition> ast = new ArrayList<>()]
+    :  ID1=ID  ':' type
+       {$ast.add(new VarDefinition($ID1.line, $ID1.getCharPositionInLine() + 1, $ID1.text, $type.ast, false));}
+    |  ID1=ID '&' ':' type
+       {$ast.add(new VarDefinition($ID1.line, $ID1.getCharPositionInLine() + 1, $ID1.text, $type.ast, true));}
+    ;
+```
