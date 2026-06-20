@@ -23,6 +23,8 @@ Each branch extends the base compiler with a new language feature. Some examples
 | `feature/assignment-expression` | Assignment as an expression: `a = b = c = 1` |
 | `feature/infer-variables` | Type inference via `var`: `a: var;` |
 | `feature/pass-by-reference` | Parameters passed by reference in function invocations with `&` operator |
+| `feature/swap` | Swap statement: `a <=> b;` |
+| `feature/array-init` | Array initialization with literal lists: `a: [5]int = {1, 2, 3, 4, 5};` |
 
 Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
 
