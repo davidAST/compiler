@@ -25,6 +25,28 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
         return null;
     }
 
+    @Override
+    public Void visit(VarDefinition varDefinition, Type parameter) {
+        for (Expression exp : varDefinition.getExpressions()) {
+            exp.accept(this, parameter);
+        }
+
+        if (!varDefinition.getExpressions().isEmpty()) {
+            if (!(varDefinition.getType() instanceof ArrayType type)) {
+                new ErrorType("The type must be Array", varDefinition);
+                return null;
+            }
+            if (type.getSize() != varDefinition.getExpressions().size()) {
+                new ErrorType("The size of the array is not the same as the initialization values", varDefinition);
+                return null;
+            }
+            for (Expression exp : varDefinition.getExpressions()) {
+                exp.getType().mustPromoteTo(type.getOf(), varDefinition);
+            }
+        }
+        return null;
+    }
+
     // Expressions ===============================================================
 
     @Override

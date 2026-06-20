@@ -5,6 +5,7 @@ import ast.definitions.Definition;
 import ast.definitions.FuncDefinition;
 import ast.definitions.VarDefinition;
 import ast.statements.*;
+import ast.types.ArrayType;
 import ast.types.FunctionType;
 import ast.types.VoidType;
 
@@ -83,11 +84,11 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
         for (VarDefinition arg : type.getParams()) {
             arg.accept(this, param);
         }
+        cg.enter(funcDefinition.getLocalVarsSize());
         cg.comment("Local variables");
         for (Definition def : funcDefinition.getDefinitions()) {
             def.accept(this, param);
         }
-        cg.enter(funcDefinition.getLocalVarsSize());
         for (Statement statement : funcDefinition.getStatements()) {
             statement.accept(this, funcDefinition);
         }
@@ -103,14 +104,41 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
 
     @Override
     public Void visit(VarDefinition varDefinition, FuncDefinition param) {
-        /*
-         * execute [[VarDefinition : definition -> ID type]] =
+        /**
+         * execute [[VarDefinition : definition -> ID type expression*]] =
          *      <` * > varDefinition.type ID <(offset > varDefinition.offset <)>
+         *      if (!expression*.isEmpty()) {
+         *          ArrayType type = (ArrayType) definition.type
+         *          for (int i = 0; i < expression*.size; i++) {
+         *              <push bp>
+         *              <pushi> definition.offset
+         *              <addi>
+         *              <pushi> i * type.elementType.numberOfBytes()
+         *              <addi>
+         *              value[[expression*[i]]]
+         *              cg.convert(expression*[i].type, type.elementType)
+         *              <store> type.elementType.suffix()
+         *          }
+         *      }
          *
          */
         cg.comment(varDefinition.getType() + " " +
                         varDefinition.getName() + " (offset " +
                         varDefinition.getOffset() + ")");
+
+        if (!varDefinition.getExpressions().isEmpty()) {
+            ArrayType type = (ArrayType) varDefinition.getType();
+            for (int i = 0; i < varDefinition.getExpressions().size(); i++) {
+                cg.pushbp();
+                cg.pushi(varDefinition.getOffset());
+                cg.add('i');
+                cg.pushi(i * type.getOf().numberOfBytes());
+                cg.add('i');
+                varDefinition.getExpressions().get(i).accept(valueV, null);
+                cg.convert(varDefinition.getExpressions().get(i).getType(), type.getOf());
+                cg.store(type.getOf().suffix());
+            }
+        }
         return null;
     }
 

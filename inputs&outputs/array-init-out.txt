@@ -1,0 +1,136 @@
+
+#source	"inputs&outputs/array-init-in.txt"
+
+' Invocation to the main function
+call main
+halt
+
+
+#line	1
+
+ main:
+	' * Parameters
+	enter	10
+	' * Local variables
+	' * ArrayType[of:IntType,size:5] a (offset -10)
+	push	bp
+	pushi	-10
+	addi
+	pushi	0
+	addi
+	pushi	1
+	storei
+	push	bp
+	pushi	-10
+	addi
+	pushi	2
+	addi
+	pushi	2
+	storei
+	push	bp
+	pushi	-10
+	addi
+	pushi	4
+	addi
+	pushi	3
+	storei
+	push	bp
+	pushi	-10
+	addi
+	pushi	6
+	addi
+	pushi	4
+	storei
+	push	bp
+	pushi	-10
+	addi
+	pushi	8
+	addi
+	pushi	5
+	storei
+
+#line	4
+	' * Write
+	push	bp
+	pushi	-10
+	addi
+	pushi	0
+	pushi	2
+	muli
+	addi
+	loadi
+	outi
+
+#line	4
+	' * Write
+	pushb	10
+	outb
+
+#line	5
+	' * Write
+	push	bp
+	pushi	-10
+	addi
+	pushi	1
+	pushi	2
+	muli
+	addi
+	loadi
+	outi
+
+#line	5
+	' * Write
+	pushb	10
+	outb
+
+#line	6
+	' * Write
+	push	bp
+	pushi	-10
+	addi
+	pushi	2
+	pushi	2
+	muli
+	addi
+	loadi
+	outi
+
+#line	6
+	' * Write
+	pushb	10
+	outb
+
+#line	7
+	' * Write
+	push	bp
+	pushi	-10
+	addi
+	pushi	3
+	pushi	2
+	muli
+	addi
+	loadi
+	outi
+
+#line	7
+	' * Write
+	pushb	10
+	outb
+
+#line	8
+	' * Write
+	push	bp
+	pushi	-10
+	addi
+	pushi	4
+	pushi	2
+	muli
+	addi
+	loadi
+	outi
+
+#line	8
+	' * Write
+	pushb	10
+	outb
+	ret	0, 10, 0

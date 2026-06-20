@@ -1,15 +1,28 @@
 package ast.definitions;
 
+import ast.expressions.Expression;
 import ast.types.Type;
 import visitor.Visitor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VarDefinition extends AbstractDefinition {
 
     private int offset;
+    private List<Expression> expressions = new ArrayList<>();
 
     public VarDefinition(int line, int column, String name, Type type) {
         super(line, column, name, type);
     }
+
+    public VarDefinition(int line, int column, String name, Type type, List<Expression> expressions) {
+        super(line, column, name, type);
+        this.expressions = expressions;
+    }
+
+    public List<Expression> getExpressions() { return expressions; }
+
 
     @Override
     public String toString() {

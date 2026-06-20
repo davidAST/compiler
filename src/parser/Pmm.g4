@@ -37,7 +37,7 @@ variables returns [List<VarDefinition> ast = new ArrayList<>()]
 varDefinition returns [List<VarDefinition> ast = new ArrayList<>()]
     locals [List<Token> tokens = new ArrayList<>()]
     :   ID1=ID { $tokens.add($ID1); }
-        (',' ID2=ID { $tokens.add($ID2); })* ':' type ';'
+        (',' ID2=ID { $tokens.add($ID2); })* ':' type ('=' init=arrayInitializer)? ';'
         {
             Set<String> seenNames = new HashSet<>();
 
@@ -48,7 +48,8 @@ varDefinition returns [List<VarDefinition> ast = new ArrayList<>()]
                     t.getLine(),
                     t.getCharPositionInLine() + 1,
                     name,
-                    $type.ast
+                    $type.ast,
+                    $init.ctx != null ? $init.ast : null
                 );
 
                 if (!seenNames.add(name)) {
@@ -56,11 +57,15 @@ varDefinition returns [List<VarDefinition> ast = new ArrayList<>()]
                 } else {
                     $ast.add(var);
                 }
-
             }
         }
     ;
 
+arrayInitializer returns [List<Expression> ast = new ArrayList<>()]
+    : '{' exp1=expression {$ast.add($exp1.ast);}
+      (',' exp2=expression {$ast.add($exp2.ast);})*
+      '}'
+    ;
 params  returns [List<VarDefinition> ast = new ArrayList<>()]:
       (var1=variables {$ast.addAll($var1.ast);}
       (',' var2=variables {$ast.addAll($var2.ast); })*)?

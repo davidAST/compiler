@@ -1,6 +1,10 @@
 Definitions (Semantic Rules)
 
     (01) statement*.forEach(statement -> statement.returnType = type.returnType)
+    (02)    if !expression*.isEmpty():
+                type.mustBeArray()
+                type.size.mustEqual(expression*.size)
+                expression*.forEach(exp -> exp.type.mustPromoteTo(type.elementType))
 
 Expressions (Semantic Rules)
 
