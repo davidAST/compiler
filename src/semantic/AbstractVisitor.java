@@ -188,6 +188,13 @@ public abstract class AbstractVisitor<TP,TR> implements Visitor<TP,TR> {
         return null;
     }
 
+    @Override
+    public TR visit(Swap swap, TP parameter) {
+        swap.getExpression1().accept(this, parameter);
+        swap.getExpression2().accept(this, parameter);
+        return null;
+    }
+
     // Types ===============================================================
 
     @Override

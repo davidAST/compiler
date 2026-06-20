@@ -220,6 +220,24 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
         return null;
     }
 
+    @Override
+    public Void visit(Swap swap, Type parameter) {
+        swap.getExpression1().accept(this, parameter);
+        swap.getExpression2().accept(this, parameter);
+
+        if (!swap.getExpression1().getLValue()) {
+            new ErrorType("The left part of the expression must be an LValue", swap.getExpression1());
+            return null;
+        }
+
+        if (!swap.getExpression2().getLValue()) {
+            new ErrorType("The right part of the expression must be an LValue", swap.getExpression2());
+            return null;
+        }
+
+        swap.getExpression1().getType().mustBeEqual(swap.getExpression2().getType(), swap);
+        return null;
+    }
 
 
 

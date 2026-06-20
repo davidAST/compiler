@@ -94,6 +94,11 @@ public abstract class AbstractType implements Type {
         return new ErrorType("Type '" + this + "' cannot be called as a function", locatable);
     }
 
+    @Override
+    public void mustBeEqual(Type type, Locatable locatable) {
+        if (!(type instanceof ErrorType))
+             new ErrorType("Type '" + this + "' does not support this operation (mustBeEqual)", locatable);
+    }
 
     @Override
     public char suffix() {

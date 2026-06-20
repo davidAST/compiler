@@ -101,6 +101,13 @@ public class RealType extends AbstractType {
     }
 
     @Override
+    public void mustBeEqual(Type type, Locatable locatable) {
+        if (!(type instanceof ErrorType) && (type != this)) {
+            new ErrorType("The types are not the same: '" + this + "' - '" + type + "'", locatable);
+        }
+    }
+
+    @Override
     public int numberOfBytes() {
         return 4;
     }

@@ -186,6 +186,15 @@ statement returns [ List<Statement> ast = new ArrayList<>() ]
                 {$ast.add(new FunctionInvocation($ID.line, $ID.getCharPositionInLine()+1,
                  new Variable($ID.line, $ID.getCharPositionInLine()+1,$ID.text),
                  $expressions)); }
+        // Swap
+        | exp1=expression '<=>' exp2=expression ';'
+            {$ast.add(
+                new Swap(
+                    $exp1.ast.getLine(),
+                    $exp1.ast.getColumn(),
+                    $exp1.ast,
+                    $exp2.ast
+                ));}
         ;
 
 block returns [List<Statement> ast = new ArrayList<>()]

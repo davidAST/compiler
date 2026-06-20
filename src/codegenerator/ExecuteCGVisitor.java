@@ -291,4 +291,25 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
         }
         return null;
     }
+
+    @Override
+    public Void visit(Swap swap, FuncDefinition param) {
+        /*
+         * execute[[Swap: statement -> expression1 expression2]]() =
+         *      address[[expression1]]
+         *      value[[expression2]]
+         *      address[[expression2]]
+         *      value[[expression1]]
+         *      <store> expression1.type.suffix()
+         *      <store> expression1.type.suffix()
+         */
+        cg.line(swap.getLine());
+        swap.getExpression1().accept(addressV, null);
+        swap.getExpression2().accept(valueV, null);
+        swap.getExpression2().accept(addressV, null);
+        swap.getExpression1().accept(valueV, null);
+        cg.store(swap.getExpression1().getType().suffix());
+        cg.store(swap.getExpression1().getType().suffix());
+        return null;
+    }
 }

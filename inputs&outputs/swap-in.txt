@@ -1,0 +1,13 @@
+def main()->None: {
+    a: int;
+    b: int;
+
+    a = 1;
+    b = 2;
+
+    a <=> b;
+
+    print 'a', a, '\n'; # Should print 2
+    print 'b', b, '\n'; # Should print 1
+
+}

@@ -27,4 +27,5 @@ Statements (Semantic Rules)
     (05)    expression.type.mustBeLogical()
     (06)    expression.type.mustPromoteTo(statement.returnType)
     (07)    expression.type.parenthesis(expression*.map(e->e.type))
+    (08)    expression1.type.mustBeEqual(expression2.type)
 

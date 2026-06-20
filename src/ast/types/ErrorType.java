@@ -75,6 +75,9 @@ public class ErrorType extends AbstractType {
     public Type canBeCastTo(Type type, Locatable locatable) { return this; }
 
     @Override
+    public void mustBeEqual(Type type, Locatable locatable) {  }
+
+    @Override
     public int numberOfBytes() {
         throw new IllegalArgumentException(
                 "This code should never be executed! When there is an error, code generation is not done");
