@@ -1,223 +1,182 @@
-# P-- Compiler
+# P-- Compiler — `feature/array-init` branch
+> Extends the base compiler with support for **array initialization with literal lists**, allowing arrays to be declared and filled in a single statement.
 
-## Branches
+## What this branch adds
 
-Each branch extends the base compiler with a new language feature. Some examples:
+P-- now supports initializing an array variable directly at declaration with a brace-enclosed list of expressions, instead of assigning each element manually.
 
-| Branch | Feature |
-|---|---|
-| `master` | Base compiler |
-| `feature/increment` | `++` and `--` operators |
-| `feature/multiple-assignment` | Multiple assignment: `a, b, c = 1, 'a', 2.3` |
-| `feature/var-init` | Variable declarations anywhere in a function body (not inside `while`/`if`) |
-| `feature/void-return` | `return;` to exit a void function early |
-| `feature/for-loop` | `for` loop statement |
-| `feature/xor` | `^` (XOR) operator |
-| `feature/switch` | `switch` statement |
-| `feature/ternary` | `? :` ternary conditional operator |
-| `feature/compound-assignment` | `+=`, `-=`, `*=`, `/=` compound assignment operators |
-| `feature/do-while` | `do-while` loop statement |
-| `feature/forEach` | `each` statement (forEach loop over arrays) |
-| `feature/contains` | `array.contains(element)` expression |
-| `feature/range-comparator` | `<<` and `>>` range comparator operators |
-| `feature/assignment-expression` | Assignment as an expression: `a = b = c = 1` |
-| `feature/infer-variables` | Type inference via `var`: `a: var;` |
-| `feature/pass-by-reference` | Parameters passed by reference in function invocations with `&` operator |
-
-Check the [branches page](https://github.com/davidAST/Compiler/branches) for the full list.
-
-A compiler for **P--** (Python minus minus), a statically-typed imperative language inspired by Python but designed for educational purposes. Built in Java using ANTLR4, it compiles P-- source code into MAPL assembly, which runs on the MAPL virtual machine.
-
-## Language Overview
-
-P-- supports:
-- Primitive types: `int`, `double`, `char`
-- Composite types: arrays, structs
-- Control flow: `if/else`, `while`
-- Functions with parameters and return values
-- Type casting and arithmetic/logical expressions
-- `print` and `input` statements
-
-Example P-- program:
 ```
-def main()->None: {
-    i: int;
-    i = 0;
-    while i < 10: {
-        print i, '\n';
-        i = i + 1;
-    }
+def main() -> None:
+{
+    a: [5]int = {1, 2, 3, 4, 5};
+    print a[0], '\n';
+    print a[1], '\n';
+    print a[2], '\n';
+    print a[3], '\n';
+    print a[4], '\n';
 }
 ```
 
-## Project Structure
-
+Expected output:
 ```
-src/
-├── ast/
-│   ├── definitions/       # VarDefinition, FuncDefinition
-│   ├── expressions/       # Arithmetic, logical, access expressions
-│   ├── statements/        # Assignment, Print, Read, If, While, Return...
-│   └── types/             # IntType, CharType, RealType, ArrayType, StructType...
-├── codegenerator/
-│   ├── CodeGenerator.java         # Low-level MAPL instruction emitter
-│   ├── ExecuteCGVisitor.java      # Code generation for statements/definitions
-│   ├── ValueCGVisitor.java        # Code generation for expressions (by value)
-│   └── AddressCGVisitor.java      # Code generation for expressions (by address)
-├── semantic/
-│   ├── IdentificationVisitor.java # Symbol resolution
-│   └── TypeCheckingVisitor.java   # Type checking and inference
-├── parser/
-│   ├── Pmm.g4                     # ANTLR4 grammar
-│   └── ...                        # Generated lexer/parser
-└── symboltable/
-    └── SymbolTable.java
-test/
-inputs&outputs/                    # Sample programs and expected outputs
-mapl/                              # MAPL virtual machine
+1
+2
+3
+4
+5
 ```
 
-## Compilation Pipeline
+## Language change
 
-```
-Source (.pmm)
-     │
-     ▼
-  Lexer/Parser (ANTLR4)
-     │
-     ▼
-  AST Construction
-     │
-     ▼
-  Identification (symbol table)
-     │
-     ▼
-  Type Checking
-     │
-     ▼
-  Code Generation
-     │
-     ▼
-  MAPL Assembly (.mapl)
-     │
-     ▼
-  MAPL Virtual Machine → Output
-```
+| | Before | After |
+|---|---|---|
+| Array initialization | ❌ One assignment per element | ✅ `a: [5]int = {1, 2, 3, 4, 5};` |
+| Size checking | ❌ Not supported | ✅ Number of initializer values must match the declared array size |
+| Element type checking | ❌ Not supported | ✅ Each value must be promotable to the array's element type |
 
-## Requirements
+## Type rules
 
-- Java 17+
-- ANTLR4 (included in `lib/`)
-- MAPL virtual machine (included in `mapl/`)
-
-## Running
-
-1. Compile the project in IntelliJ or with `javac`.
-2. Run the `Main` class passing the input source file and the output assembly file as arguments:
-
-```bash
-java Main <input.txt> <output.txt>
-```
-
-- `input.txt` — P-- source code
-- `output.txt` — generated MAPL assembly
-
-If there are semantic or type errors, they will be printed to stderr and no output file will be generated.
-
-3. Run the generated assembly with the MAPL virtual machine:
-
-```bash
-java -jar mapl/mapl.jar output.txt
-```
-
-Or use the provided `MAPL.cmd` script on Windows.
-
-## Target: MAPL Assembly
-
-The compiler targets MAPL, a stack-based virtual machine. Key instructions:
-
-| Instruction | Description |
+| Constraint | Example violation |
 |---|---|
-| `push`, `pushi`, `pushf` | Push values onto the stack |
-| `loadi`, `storei` | Load/store integers |
-| `call`, `ret` | Function call/return |
-| `jmp`, `jz` | Unconditional/conditional jumps |
-| `outi`, `outf`, `outb` | Print int/double/char |
-| `enter` | Allocate local variable space |
+| The declared type must be an array | `a: int = {1, 2, 3};` → error |
+| The number of values must match the array size | `a: [5]int = {1, 2, 3};` → error |
+| Each value must be promotable to the element type | `a: [5]int = {1.0, 2, 3, 4, 5};` → error |
 
-## Example
+## MAPL output example
 
-Input program (`input.txt`):
+Given:
 ```
-v:[10]double;
-
-# Main program
-def main()->None: {
-    value:double;
-    i,j:int;
-    w:[4][5]int;
-    date:struct { 
-       day, month, year:int;     
-    };
-    
-    input date.day; 
-    date.year = 'a'; 
-    date.month = date.day*date.year%12+1;
-    print date.day, '\n', date.month, '\n', (double)(date.year), '\n';
-    
-    input value;
-       
-    i=0;   
-    while i<10: {
-       v[i]=value;
-       print i,':',v[i], ' ';
-       if i%2:
-          print 'o','d','d','\n';
-       else:
-          print 'e','v','e','n','\n';
-       i=i+1;
-    }
-    print '\n';
-
-    i=0;
-    while i<4: {
-       j=0;
-       while j<5: {
-          w[i][j]=i+j;
-          print w[i][j], ' ';
-          j=j+1;
-       }
-       print '\n';
-       i=i+1;
-    }
+def main() -> None:
+{
+    a: [5]int = {1, 2, 3, 4, 5};
+    ...
 }
 ```
 
-Running the generated assembly on the MAPL VM:
+Generated assembly:
+```asm
+#source "array-init-in.txt"
+' Invocation to the main function
+call main
+halt
+
+#line 1
+ main:
+    ' * Parameters
+    enter  10
+    ' * Local variables
+    ' * ArrayType[of:IntType,size:5] a (offset -10)
+    push   bp
+    pushi  -10
+    addi
+    pushi  0
+    addi
+    pushi  1
+    storei
+    push   bp
+    pushi  -10
+    addi
+    pushi  2
+    addi
+    pushi  2
+    storei
+    push   bp
+    pushi  -10
+    addi
+    pushi  4
+    addi
+    pushi  3
+    storei
+    push   bp
+    pushi  -10
+    addi
+    pushi  6
+    addi
+    pushi  4
+    storei
+    push   bp
+    pushi  -10
+    addi
+    pushi  8
+    addi
+    pushi  5
+    storei
+    ...
+    ret    0, 10, 0
 ```
->Integer value: 10
-10
-11
-97.0
 
->Float value: 20.0
-0:20.0 even
-1:20.0 odd
-2:20.0 even
-3:20.0 odd
-4:20.0 even
-5:20.0 odd
-6:20.0 even
-7:20.0 odd
-8:20.0 even
-9:20.0 odd
+Note that `enter` is emitted **before** the initialization stores. The activation record must be allocated first, since the stores write into stack-relative offsets that only become valid memory after `enter` reserves the local variables' space — initializing before `enter` would write into memory that is later overwritten or invalid.
 
-0 1 2 3 4 
-1 2 3 4 5 
-2 3 4 5 6 
-3 4 5 6 7 
+## Code generation structure
+
+For each element in the initializer list, the array's base address is computed, offset by `i * elementType.numberOfBytes()`, and the corresponding value is stored:
+
+```
+execute[[ VarDefinition : definition -> ID type expression* ]]() =
+    <` * ` > varDefinition.type ID <(offset > varDefinition.offset <)>
+    if (!expression*.isEmpty()) {
+        ArrayType type = (ArrayType) definition.type
+        for (int i = 0; i < expression*.size; i++) {
+            <push> bp
+            <pushi> definition.offset
+            <addi>
+            <pushi> i * type.elementType.numberOfBytes()
+            <addi>
+            value[[expression*[i]]]
+            cg.convert(expression*[i].type, type.elementType)
+            <store> type.elementType.suffix()
+        }
+    }
 ```
 
-## License
+The initialization instructions are emitted after `enter` is generated in `FuncDefinition`, so the order in the function body is: parameters → `enter` → local variable comments and initializations → statements.
 
-MIT
+---
+
+## Language specification
+
+### 1. Abstract grammar
+
+`VarDefinition` gains an optional list of initializer expressions:
+
+```
+Definitions (Abstract Grammar)
+    (02) VarDefinition: definition -> ID type expression*
+```
+
+### 2. Semantic rules (attribute grammar)
+
+```
+Definitions (Semantic Rules)
+    (02)  if !expression*.isEmpty():
+              type.mustBeArray()
+              type.size.mustEqual(expression*.size)
+              expression*.forEach(exp -> exp.type.mustPromoteTo(type.elementType))
+```
+
+### 3. Grammar rule
+
+A new `arrayInitializer` rule is added, and `varDefinition` accepts an optional `= arrayInitializer`:
+
+```antlr
+varDefinition returns [List<VarDefinition> ast = new ArrayList<>()]
+    locals [List<Token> tokens = new ArrayList<>()]
+    :   ID1=ID { $tokens.add($ID1); }
+        (',' ID2=ID { $tokens.add($ID2); })* ':' type ('=' init=arrayInitializer)? ';'
+        {
+            for (Token t : $tokens) {
+                $ast.add(new VarDefinition(
+                    t.getLine(), t.getCharPositionInLine() + 1,
+                    t.getText(), $type.ast,
+                    $init != null ? $init.ast : null
+                ));
+            }
+        }
+    ;
+
+arrayInitializer returns [List<Expression> ast = new ArrayList<>()]
+    : '{' exp1=expression {$ast.add($exp1.ast);}
+      (',' exp2=expression {$ast.add($exp2.ast);})*
+      '}'
+    ;
+```
