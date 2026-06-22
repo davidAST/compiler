@@ -25,6 +25,18 @@ public class TypeCheckingVisitor extends AbstractVisitor<Type, Void> {
         return null;
     }
 
+    @Override
+    public Void visit(VarDefinition varDef, Type parameter) {
+        varDef.getType().accept(this, parameter);
+
+        if (varDef.getExpression() != null) {
+            varDef.getExpression().accept(this, parameter);
+            varDef.getExpression().getType().mustPromoteTo(varDef.getType(), varDef);
+        }
+
+        return null;
+    }
+
     // Expressions ===============================================================
 
     @Override

@@ -3,7 +3,7 @@ Program (Abstract Grammar)
 
 Definitions (Abstract Grammar)
     (01) FuncDefinition:    definition      -> type ID definition* statement*
-    (02) VarDefinition:     definition      -> ID type
+    (02) VarDefinition:     definition      -> ID type expression?
 
 Expressions (Abstract Grammar)
 

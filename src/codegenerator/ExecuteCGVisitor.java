@@ -83,11 +83,11 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
         for (VarDefinition arg : type.getParams()) {
             arg.accept(this, param);
         }
+        cg.enter(funcDefinition.getLocalVarsSize());
         cg.comment("Local variables");
         for (Definition def : funcDefinition.getDefinitions()) {
             def.accept(this, param);
         }
-        cg.enter(funcDefinition.getLocalVarsSize());
         for (Statement statement : funcDefinition.getStatements()) {
             statement.accept(this, funcDefinition);
         }
@@ -104,13 +104,30 @@ public class ExecuteCGVisitor extends AbstractCGVisitor<FuncDefinition, Void> {
     @Override
     public Void visit(VarDefinition varDefinition, FuncDefinition param) {
         /*
-         * execute [[VarDefinition : definition -> ID type]] =
-         *      <` * > varDefinition.type ID <(offset > varDefinition.offset <)>
+         * execute [[VarDefinition : definition -> ID type expression?]] =
+         *      <` * > varDefinition.type ID <(offset > definition.offset <)>
+         *      if (expression? != null) {
+         *          <push bp>
+         *          <pushi> definition.offset
+         *          <addi>
+         *          value[[expression]]
+         *          convert(expression.type, type)
+         *          <store> definition.type.suffix()
+         *      }
          *
          */
         cg.comment(varDefinition.getType() + " " +
                         varDefinition.getName() + " (offset " +
                         varDefinition.getOffset() + ")");
+
+        if (varDefinition.getExpression() != null) {
+            cg.pushbp();
+            cg.pushi(varDefinition.getOffset());
+            cg.add('i');
+            varDefinition.getExpression().accept(valueV, null);
+            cg.convert(varDefinition.getExpression().getType(), varDefinition.getType());
+            cg.store(varDefinition.getType().suffix());
+        }
         return null;
     }
 

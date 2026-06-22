@@ -59,6 +59,14 @@ varDefinition returns [List<VarDefinition> ast = new ArrayList<>()]
 
             }
         }
+    | ID1=ID ':' type '=' exp1=expression ';'
+        {$ast.add(new VarDefinition(
+            $ID1.getLine(),
+            $ID1.getCharPositionInLine() + 1,
+            $ID1.getText(),
+            $type.ast,
+            $exp1.ast
+        ));}
     ;
 
 params  returns [List<VarDefinition> ast = new ArrayList<>()]:

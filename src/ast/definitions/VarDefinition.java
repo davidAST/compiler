@@ -1,14 +1,26 @@
 package ast.definitions;
 
+import ast.expressions.Expression;
 import ast.types.Type;
 import visitor.Visitor;
 
 public class VarDefinition extends AbstractDefinition {
 
     private int offset;
+    private final Expression expression;
 
     public VarDefinition(int line, int column, String name, Type type) {
         super(line, column, name, type);
+        expression = null;
+    }
+
+    public VarDefinition(int line, int column, String name, Type type, Expression expression) {
+        super(line, column, name, type);
+        this.expression = expression;
+    }
+
+    public Expression getExpression() {
+        return expression;
     }
 
     @Override

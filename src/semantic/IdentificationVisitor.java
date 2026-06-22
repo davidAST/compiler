@@ -24,6 +24,10 @@ public class IdentificationVisitor extends AbstractVisitor<Void, Void> {
         // 2. Visit the type of the variable definition
         variableDefinition.getType().accept(this, parameter);
 
+        if (variableDefinition.getExpression() != null) {
+            variableDefinition.getExpression().accept(this, parameter);
+        }
+
         return null;
     }
 

@@ -1,6 +1,7 @@
 Definitions (Semantic Rules)
 
     (01) statement*.forEach(statement -> statement.returnType = type.returnType)
+    (02) if (expression? != null) expression?.type.mustPromoteTo(type);
 
 Expressions (Semantic Rules)
 

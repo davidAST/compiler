@@ -1,0 +1,13 @@
+def main() -> None:
+{
+    a: int = 1;
+    b: char = 'z';
+    c: double = 3.14;
+
+    # d: int = 3.14;  # Error: double is not promotable to int
+    # e: char = 1;    # Error: int is not promotable to char
+
+    print a, '\n';
+    print b, '\n';
+    print c, '\n';
+}
